@@ -1,0 +1,46 @@
+{
+  "name": "FINZA — Keuangan Pribadi",
+  "short_name": "FINZA",
+  "id": "./",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f2f6fb",
+  "theme_color": "#1162f2",
+  "lang": "id",
+  "description": "Catat pemasukan & pengeluaran dari teks, foto struk, atau bot Telegram.",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Catat transaksi",
+      "short_name": "Catat",
+      "url": "./?catat=1",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ]
+}

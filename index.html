@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="utf-8">
+<base target="_top">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1162f2">
+<meta name="description" content="FINZA — catat keuangan pribadi dari teks, foto struk, atau Telegram.">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="FINZA">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>FINZA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f2f6fb; --surface: #ffffff; --surface-2: #f6f9fd; --border: rgba(10,40,90,0.08);
+    --ink: #0f1a2e; --ink-2: #4f5b70; --muted: #8590a3;
+    --grid: #e6ecf5; --axis: #cfd8e6; --hover: rgba(26,102,240,0.05);
+    --accent: #1a66f0; --accent-wash: rgba(26,102,240,0.12); --accent-soft: #e7f0ff;
+    --s-in: #13a47e; --s-out: #ef6a3e; --s-in-wash: rgba(19,164,126,0.12);
+    --good: #0b8a63; --critical: #d63c4a; --warning-ink: #9a6200;
+    --brand: #1a66f0; --brand-ink: #021b3f;
+    --hero-1: #1162f2; --hero-2: #0a8fd6; --hero-3: #2fe0c3;
+    --shadow: 0 1px 2px rgba(8,30,70,.04), 0 10px 30px rgba(8,30,70,.06);
+  }
+  :root[data-theme="dark"] {
+      color-scheme: dark;
+      --page: #0b111d; --surface: #141c2c; --surface-2: #1b2538; --border: rgba(255,255,255,0.07);
+      --ink: #f2f6ff; --ink-2: #c0cadb; --muted: #8592a8;
+      --grid: #233049; --axis: #33425f; --hover: rgba(92,157,255,0.08);
+      --accent: #3d87f5; --accent-wash: rgba(61,135,245,0.18); --accent-soft: #14284d;
+      --s-in: #16a682; --s-out: #e9643a; --s-in-wash: rgba(22,166,130,0.16);
+      --good: #2ccf9b; --critical: #ff7783; --warning-ink: #f5b84a;
+      --brand: #7fb2ff; --brand-ink: #ffffff;
+      --hero-1: #0e4fd0; --hero-2: #0a78b5; --hero-3: #15b39c;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.25);
+    }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  body { margin: 0; background: var(--page); color: var(--ink);
+    font: 14px/1.5 "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing: antialiased; }
+  .wrap { max-width: 1160px; margin: 0 auto; padding: 24px 16px 56px; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 14px; flex-wrap: wrap; margin-bottom: 22px; }
+  .brand { display: flex; align-items: center; gap: 12px; }
+  .logo { width: 42px; height: 42px; display: block; flex: none; object-fit: contain; }
+  .brand h1 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.01em; line-height: 1.1; color: var(--brand-ink); }
+  .brand span { display: block; color: var(--muted); font-size: 13px; font-weight: 500; }
+  .controls { display: flex; align-items: center; gap: 4px; background: var(--surface); padding: 4px; border-radius: 999px; box-shadow: var(--shadow); }
+  button, select, input { font: inherit; color: var(--ink); }
+  .btn { background: transparent; border: 0; border-radius: 999px; padding: 6px 12px; cursor: pointer; min-height: 36px; min-width: 36px; font-weight: 600; }
+  .btn:hover { background: var(--accent-soft); color: var(--accent); }
+  .tgl { font-size: 13px; }
+  body, .card, .controls { transition: background-color .25s, color .25s; }
+  .btn:disabled { opacity: .35; cursor: default; background: transparent; color: var(--ink); }
+  select.btn { appearance: none; -webkit-appearance: none; padding: 6px 14px; text-align: center; background: var(--accent-soft); color: var(--accent); }
+  .grid { display: grid; gap: 16px; grid-template-columns: repeat(12, 1fr); }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 22px; padding: 20px; min-width: 0; box-shadow: var(--shadow); }
+  .card h2 { margin: 0 0 2px; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; }
+  .card .sub { margin: 0 0 14px; color: var(--muted); font-size: 12.5px; }
+  /* hero */
+  .hero { grid-column: span 6; position: relative; overflow: hidden; color: #fff; border: 0; border-radius: 26px; padding: 24px;
+    background: radial-gradient(120% 140% at 100% 0%, var(--hero-3) 0%, transparent 55%), linear-gradient(135deg, var(--hero-1), var(--hero-2)); box-shadow: 0 14px 40px rgba(17,98,242,.26); }
+  .hero::after { content: ""; position: absolute; right: -60px; bottom: -80px; width: 220px; height: 220px; border-radius: 50%; background: rgba(255,255,255,.08); }
+  .hero::before { content: ""; position: absolute; right: 70px; top: -90px; width: 180px; height: 180px; border-radius: 50%; background: rgba(255,255,255,.07); }
+  .hero .label { font-size: 13px; opacity: .85; font-weight: 500; position: relative; }
+  .hero .value { font-size: 38px; font-weight: 800; letter-spacing: -0.02em; margin: 6px 0 4px; position: relative; white-space: nowrap; }
+  .hero .note { font-size: 12.5px; opacity: .85; position: relative; }
+  .hero .pills { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 18px; position: relative; }
+  .pill { background: rgba(255,255,255,.14); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.18); border-radius: 16px; padding: 10px 12px; }
+  .pill .pl { font-size: 12px; opacity: .9; display: flex; align-items: center; gap: 6px; }
+  .pill .pl i { width: 20px; height: 20px; border-radius: 7px; display: inline-grid; place-items: center; font-style: normal; font-size: 12px; background: rgba(255,255,255,.22); }
+  .pill .pv { font-size: 17px; font-weight: 700; margin-top: 2px; white-space: nowrap; }
+  .pill .pd { font-size: 11.5px; opacity: .85; }
+  .stats { grid-column: span 6; display: grid; gap: 16px; grid-template-columns: 1fr 1fr; }
+  .stat { display: flex; flex-direction: column; justify-content: space-between; }
+  .stat .ic { width: 36px; height: 36px; border-radius: 12px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 17px; margin-bottom: 10px; }
+  .stat .label { color: var(--muted); font-size: 12.5px; font-weight: 500; }
+  .stat .value { font-size: 22px; font-weight: 800; letter-spacing: -0.01em; margin: 2px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stat .delta { font-size: 12px; color: var(--muted); }
+  .stat.wide { grid-column: span 2; flex-direction: row; align-items: center; gap: 14px; }
+  .stat.wide .ic { margin: 0; flex: none; }
+  .meter { height: 8px; border-radius: 99px; background: var(--grid); overflow: hidden; margin-top: 8px; }
+  .meter span { display: block; height: 100%; border-radius: 99px; background: var(--accent); }
+  .delta .up-bad, .delta .down-bad { color: var(--critical); font-weight: 600; }
+  .delta .up-good, .delta .down-good { color: var(--good); font-weight: 600; }
+  .hero .delta .up-bad, .hero .delta .down-bad, .hero .delta .up-good, .hero .delta .down-good { color: #fff; }
+  .span-7 { grid-column: span 7; } .span-5 { grid-column: span 5; } .span-12 { grid-column: span 12; }
+  .span-8 { grid-column: span 8; } .span-4 { grid-column: span 4; }
+  svg { display: block; width: 100%; overflow: visible; }
+  svg text { font-family: inherit; }
+  .legend { display: flex; gap: 16px; font-size: 12px; color: var(--ink-2); margin-bottom: 8px; font-weight: 500; }
+  .legend i { display: inline-block; width: 10px; height: 10px; border-radius: 4px; margin-right: 6px; vertical-align: -1px; }
+  #tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--border);
+    box-shadow: 0 10px 30px rgba(8,30,70,.18); border-radius: 12px; padding: 9px 12px; font-size: 12px; opacity: 0; transition: opacity .08s; z-index: 10; max-width: 260px; }
+  #tip b { font-weight: 700; }
+  #tip .k { display: flex; align-items: center; gap: 6px; }
+  #tip .k i { width: 8px; height: 8px; border-radius: 3px; display: inline-block; }
+  .tablebar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .tablebar input { flex: 1 1 200px; background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px; padding: 8px 16px; min-height: 38px; outline: none; }
+  .tablebar input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); }
+  .chip { border: 1px solid var(--border); background: var(--surface-2); border-radius: 999px; padding: 7px 14px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--ink-2); }
+  .chip[aria-pressed="true"] { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .tbl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .tbl th { text-align: left; font-weight: 600; color: var(--muted); font-size: 11.5px; text-transform: uppercase; letter-spacing: .04em; padding: 8px; border-bottom: 1px solid var(--grid); }
+  .tbl td { padding: 10px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+  .tbl tr:last-child td { border-bottom: 0; }
+  .tbl tbody tr:hover td { background: var(--hover); }
+  .tbl .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; font-weight: 700; }
+  .tbl .num.in { color: var(--good); }
+  .tbl .m { color: var(--muted); font-size: 12px; }
+  .tx { display: flex; align-items: center; gap: 10px; }
+  .av { width: 34px; height: 34px; border-radius: 11px; flex: none; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .av.out { background: rgba(239,106,62,.12); color: var(--s-out); }
+  .av.in { background: var(--s-in-wash); color: var(--s-in); }
+  .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .tbl a { color: var(--accent); text-decoration: none; font-weight: 600; }
+  .list-row { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin-bottom: 14px; font-size: 13px; font-weight: 500; }
+  .list-row .bar { grid-column: span 2; height: 8px; border-radius: 99px; background: var(--grid); overflow: hidden; }
+  .list-row .bar span { display: block; height: 100%; background: var(--s-in); border-radius: 99px; }
+  .list-row .bar.neutral span { background: var(--ink-2); }
+  .sm-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+  .sm-cell { background: var(--surface-2); border-radius: 16px; padding: 12px 12px 8px; }
+  .sm-cell .sm-head { display: flex; justify-content: space-between; gap: 8px; font-size: 12px; margin-bottom: 6px; font-weight: 600; }
+  .sm-cell .sm-head span:first-child { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .sm-cell .sm-head span:last-child { color: var(--muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  @media (max-width: 560px) { .sm-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  .empty { color: var(--muted); padding: 24px 0; text-align: center; }
+  .show-sm { display: none; }
+  #loading { padding: 80px 16px; text-align: center; color: var(--muted); }
+  .more { margin-top: 12px; text-align: center; }
+  .more .btn { background: var(--accent-soft); color: var(--accent); padding: 8px 18px; }
+  .act { white-space: nowrap; text-align: right; width: 1%; }
+  .ib { border: 0; background: transparent; width: 32px; height: 32px; border-radius: 10px; cursor: pointer; color: var(--muted); font-size: 15px; display: inline-grid; place-items: center; }
+  .ib:hover { background: var(--accent-soft); color: var(--accent); }
+  .ib.del:hover { background: rgba(214,60,74,.10); color: var(--critical); }
+  .ib:focus-visible, .mbtn:focus-visible, .fld input:focus-visible, .fld select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .confirm { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--ink-2); flex-wrap: wrap; justify-content: flex-end; min-width: 230px; }
+  @media (max-width: 560px) { .confirm { min-width: 150px; } }
+  .mbtn { border: 1px solid var(--border); background: var(--surface-2); color: var(--ink); border-radius: 999px; padding: 6px 12px; font-weight: 600; font-size: 12.5px; cursor: pointer; }
+  .mbtn.danger { background: var(--critical); border-color: var(--critical); color: #fff; }
+  .mbtn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .mbtn:disabled { opacity: .5; cursor: default; }
+  tr.busy td { opacity: .45; }
+  #modal { position: fixed; inset: 0; background: rgba(5,15,35,.45); display: grid; place-items: center; padding: 16px; z-index: 20; }
+  #modal .sheet { background: var(--surface); color: var(--ink); border-radius: 22px; width: min(460px, 100%); max-height: calc(100% - 32px); overflow: auto; padding: 22px; box-shadow: 0 24px 60px rgba(5,20,60,.35); display: grid; gap: 14px; }
+  #modal h3 { margin: 0; font-size: 17px; }
+  .fgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .fld { display: grid; gap: 5px; min-width: 0; }
+  .fld.full { grid-column: span 2; }
+  .fld label { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .fld input, .fld select { font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 9px 12px; min-height: 40px; width: 100%; box-sizing: border-box; }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--surface-2); border: 1px solid var(--border); border-radius: 12px; padding: 3px; gap: 3px; }
+  .seg button { border: 0; background: transparent; border-radius: 9px; padding: 8px; font: inherit; font-weight: 600; color: var(--ink-2); cursor: pointer; }
+  .seg button[aria-pressed="true"].out { background: var(--s-out); color: #fff; }
+  .seg button[aria-pressed="true"].in { background: var(--s-in); color: #fff; }
+  .merr { color: var(--critical); font-size: 13px; min-height: 1em; }
+  .mfoot { display: flex; justify-content: flex-end; gap: 8px; }
+  #toast { position: fixed; left: 50%; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--ink); color: var(--surface); padding: 10px 18px; border-radius: 18px; white-space: pre-line; text-align: center; width: max-content; max-width: calc(100% - 32px); font-size: 13px; font-weight: 600; z-index: 30; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+  @media (max-width: 560px) { .fgrid { grid-template-columns: 1fr; } .fld.full { grid-column: auto; } .ib { width: 30px; height: 30px; } }
+  /* ---------- catat dari aplikasi ---------- */
+  #fab { position: fixed; right: max(16px, env(safe-area-inset-right, 0px)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); z-index: 15;
+    border: 0; border-radius: 999px; padding: 0 22px 0 18px; min-height: 54px; display: inline-flex; align-items: center; gap: 8px;
+    background: linear-gradient(135deg, var(--hero-1), var(--hero-2)); color: #fff; font-weight: 700; font-size: 15px; cursor: pointer;
+    box-shadow: 0 12px 30px rgba(17,98,242,.35); }
+  #fab b { font-size: 24px; line-height: 1; font-weight: 600; margin-top: -2px; }
+  #fab:active { transform: scale(.97); }
+  #fab:focus-visible { outline: 3px solid var(--accent-wash); outline-offset: 3px; }
+  .wrap { padding-bottom: 110px; }
+  .overlay { position: fixed; inset: 0; background: rgba(5,15,35,.45); display: grid; place-items: center; padding: 16px; z-index: 20; }
+  .overlay .sheet { background: var(--surface); color: var(--ink); border-radius: 22px; width: min(520px, 100%); max-height: calc(100% - 32px); overflow: auto;
+    padding: 22px; box-shadow: 0 24px 60px rgba(5,20,60,.35); display: grid; gap: 14px; overscroll-behavior: contain; }
+  .overlay h3 { margin: 0; font-size: 17px; }
+  .shead { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .seg3 { grid-template-columns: 1fr 1fr 1fr; }
+  .seg button[aria-pressed="true"].tab { background: var(--surface); color: var(--accent); box-shadow: 0 1px 4px rgba(8,30,70,.12); }
+  .apanel { display: grid; gap: 12px; }
+  .apanel textarea { font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px;
+    min-height: 104px; resize: vertical; width: 100%; outline: none; }
+  .apanel textarea:focus, .fld input:focus, .fld select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-wash); outline: none; }
+  .hint { color: var(--muted); font-size: 12.5px; margin: 0; }
+  .ex { display: flex; flex-wrap: wrap; gap: 6px; }
+  .ex button { border: 1px dashed var(--axis); background: transparent; color: var(--ink-2); border-radius: 999px; padding: 5px 11px; font-size: 12px; cursor: pointer; }
+  .picks { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .pick { display: grid; place-items: center; gap: 4px; text-align: center; padding: 18px 10px; border-radius: 16px; cursor: pointer; font-weight: 700; font-size: 13.5px;
+    background: var(--accent-soft); color: var(--accent); border: 1px solid var(--accent-wash); }
+  .pick span { font-size: 26px; }
+  .pick input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .pick:focus-within { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .preview { display: flex; gap: 12px; align-items: center; background: var(--surface-2); border-radius: 14px; padding: 10px; }
+  .preview img { width: 64px; height: 84px; object-fit: cover; border-radius: 10px; flex: none; background: var(--grid); }
+  .preview div { font-size: 12.5px; color: var(--ink-2); min-width: 0; }
+  .bigbtn { border: 0; border-radius: 14px; min-height: 48px; font-weight: 700; font-size: 15px; background: var(--accent); color: #fff; cursor: pointer; width: 100%; }
+  .bigbtn:disabled { opacity: .55; cursor: default; }
+  .spin { display: inline-block; width: 15px; height: 15px; border: 2px solid rgba(255,255,255,.45); border-top-color: #fff; border-radius: 50%;
+    animation: sp .7s linear infinite; vertical-align: -2px; margin-right: 8px; }
+  @keyframes sp { to { transform: rotate(360deg); } }
+  .draft { border: 1px solid var(--border); border-radius: 16px; padding: 14px; display: grid; gap: 10px; background: var(--surface-2); }
+  .draft .fld input, .draft .fld select { background: var(--surface); }
+  .draft .dhead { display: flex; align-items: center; gap: 10px; }
+  .draft .dhead .seg { flex: 1; }
+  .draft .seg { background: var(--surface); }
+  .note { background: var(--accent-soft); color: var(--ink-2); border-radius: 12px; padding: 10px 12px; font-size: 12.5px; }
+  .warnbox { background: rgba(214,60,74,.10); color: var(--critical); border-radius: 12px; padding: 10px 12px; font-size: 13px; font-weight: 600; white-space: pre-line; }
+  #login { max-width: 440px; margin: 40px auto; text-align: center; display: grid; gap: 14px; }
+  #login img { width: 72px; height: 72px; margin: 0 auto; }
+  #login h2 { margin: 0; font-size: 22px; }
+  #login p { margin: 0; color: var(--ink-2); }
+  #login input { font: inherit; color: var(--ink); background: var(--surface-2); border: 1px solid var(--border); border-radius: 14px; padding: 12px 14px; min-height: 48px; width: 100%; }
+  #login ol { text-align: left; color: var(--ink-2); margin: 0; padding-left: 20px; font-size: 13.5px; }
+  #installBar { position: fixed; left: 12px; right: 12px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 14; background: var(--surface); color: var(--ink);
+    border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 12px 14px; font-size: 13px; display: flex; gap: 10px; align-items: center; max-width: 520px; margin: 0 auto; }
+  #installBar div { flex: 1; }
+  @media (max-width: 560px) {
+    header .controls { width: 100%; justify-content: space-between; gap: 0; }
+    header .controls .btn { padding: 6px 7px; min-width: 34px; }
+    header .controls select.btn { flex: 1 1 auto; min-width: 0; padding: 6px 8px; }
+  }
+  @media (max-width: 560px) { .draft .fgrid { grid-template-columns: 1fr 1fr; gap: 10px; } .draft .fld.full { grid-column: span 2; } .draft { padding: 12px; }
+    .picks { grid-template-columns: 1fr 1fr; } .overlay { place-items: end center; padding: 0; }
+    .overlay .sheet { border-radius: 22px 22px 0 0; width: 100%; max-height: 92%; padding: 20px 16px calc(20px + env(safe-area-inset-bottom, 0px)); } }
+  @media (max-width: 960px) {
+    .hero, .stats { grid-column: span 12; }
+    .span-7, .span-5, .span-8, .span-4 { grid-column: span 12; }
+  }
+  @media (max-width: 560px) {
+    .hero .value { font-size: 30px; }
+    .pill .pv { font-size: 15px; }
+    .stat .value { font-size: 18px; }
+    .stats { gap: 12px; }
+    .card { padding: 16px; border-radius: 18px; }
+    .hide-sm { display: none; }
+    .show-sm { display: block; }
+    .tbl td, .tbl th { padding: 9px 4px; }
+    .av { width: 30px; height: 30px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand"><img class="logo" alt="Finza" width="42" height="42" src="data:image/png;base64,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"><div><h1>Finza</h1><span id="hello">Catatan keuangan pribadi</span></div></div>
+    <div class="controls">
+      <button class="btn" id="prev" aria-label="Bulan sebelumnya">‹</button>
+      <select class="btn" id="month" aria-label="Pilih bulan"></select>
+      <button class="btn" id="next" aria-label="Bulan berikutnya">›</button>
+      <button class="btn" id="refresh" title="Muat ulang data">↻</button>
+      <button class="btn tgl" id="themeBtn" title="Mode siang/malam">🌙</button>
+      <button class="btn tgl" id="langBtn" title="Bahasa / Language">EN</button>
+      <button class="btn tgl" id="installBtn" hidden>⬇</button>
+      <button class="btn tgl" id="logoutBtn" hidden>⏻</button>
+    </div>
+  </header>
+
+  <div id="loading" data-i18n="loading">Memuat data…</div>
+  <form id="login" class="card" hidden novalidate>
+    <h2 data-i18n="loginTitle">Masuk ke FINZA</h2>
+    <p data-i18n="loginLead">Aplikasi ini memakai link pribadi dari bot Telegram FINZA.</p>
+    <ol><li data-i18n="loginS1">Buka bot FINZA di Telegram, ketik /app</li><li data-i18n="loginS2">Ketuk link yang dikirim bot — selesai. Atau salin link itu dan tempel di bawah.</li></ol>
+    <input id="loginKey" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" data-i18n-ph="loginPh" placeholder="Tempel link atau kunci di sini">
+    <div class="merr" id="loginErr" role="alert"></div>
+    <button type="submit" class="bigbtn" data-i18n="loginBtn">Masuk</button>
+  </form>
+  <main id="app" hidden>
+    <section class="grid" id="kpis"></section>
+    <section class="grid" style="margin-top:16px">
+      <div class="card span-7">
+        <h2 data-i18n="h_kat">Pengeluaran per kategori</h2>
+        <p class="sub" id="katSub"></p>
+        <div id="katChart"></div>
+      </div>
+      <div class="card span-5">
+        <h2 data-i18n="h_daily">Pengeluaran harian</h2>
+        <p class="sub" id="dailySub"></p>
+        <div id="dailyChart"></div>
+      </div>
+      <div class="card span-8">
+        <h2 data-i18n="h_trend">Tren 6 bulan</h2>
+        <p class="sub" data-i18n="s_trend">Pemasukan dan pengeluaran per bulan</p>
+        <div class="legend"><span><i style="background:var(--s-in)"></i><b data-i18n="income" style="font-weight:500">Pemasukan</b></span><span><i style="background:var(--s-out)"></i><b data-i18n="expense" style="font-weight:500">Pengeluaran</b></span></div>
+        <div id="trendChart"></div>
+      </div>
+      <div class="card span-4">
+        <h2 data-i18n="h_inc">Sumber pemasukan</h2>
+        <p class="sub" id="incSub"></p>
+        <div id="incList"></div>
+      </div>
+      <div class="card span-8">
+        <h2 data-i18n="h_cum">Saldo kumulatif</h2>
+        <p class="sub" id="cumSub"></p>
+        <div id="cumChart"></div>
+      </div>
+      <div class="card span-4">
+        <h2 data-i18n="h_met">Metode pembayaran</h2>
+        <p class="sub" id="metSub"></p>
+        <div id="metList"></div>
+      </div>
+      <div class="card span-8">
+        <h2 data-i18n="h_sm">Tren per kategori</h2>
+        <p class="sub" id="smSub"></p>
+        <div id="smGrid" class="sm-grid"></div>
+      </div>
+      <div class="card span-4">
+        <h2 data-i18n="h_dow">Pengeluaran per hari dalam seminggu</h2>
+        <p class="sub" id="dowSub"></p>
+        <div id="dowChart"></div>
+      </div>
+      <div class="card span-12">
+        <h2 data-i18n="h_tbl">Transaksi</h2>
+        <p class="sub" id="tblSub"></p>
+        <div class="tablebar">
+          <input id="q" type="search" data-i18n-ph="search" placeholder="Cari keterangan, kategori, merchant…">
+          <button class="chip" data-f="all" aria-pressed="true" data-i18n="all">Semua</button>
+          <button class="chip" data-f="Pengeluaran" aria-pressed="false" data-i18n="expense">Pengeluaran</button>
+          <button class="chip" data-f="Pemasukan" aria-pressed="false" data-i18n="income">Pemasukan</button>
+        </div>
+        <div style="overflow-x:auto"><table class="tbl" id="tbl"></table></div>
+        <div class="more" id="more"></div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id="tip" role="tooltip"></div>
+<div id="modal" hidden role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <form class="sheet" id="editForm" novalidate>
+    <h3 id="mTitle"></h3>
+    <div class="seg" role="group" id="fTipe">
+      <button type="button" class="out" data-v="Pengeluaran" aria-pressed="true"></button>
+      <button type="button" class="in" data-v="Pemasukan" aria-pressed="false"></button>
+    </div>
+    <div class="fgrid">
+      <div class="fld"><label for="fNominal" id="lNominal"></label><input id="fNominal" type="number" inputmode="numeric" min="1" step="1" required></div>
+      <div class="fld"><label for="fTanggal" id="lTanggal"></label><input id="fTanggal" type="date" required></div>
+      <div class="fld full"><label for="fKategori" id="lKategori"></label><select id="fKategori"></select></div>
+      <div class="fld full"><label for="fKet" id="lKet"></label><input id="fKet" type="text" maxlength="200"></div>
+      <div class="fld"><label for="fMerchant" id="lMerchant"></label><input id="fMerchant" type="text" maxlength="80"></div>
+      <div class="fld"><label for="fMetode" id="lMetode"></label><select id="fMetode"></select></div>
+    </div>
+    <div class="merr" id="mErr" role="alert"></div>
+    <div class="mfoot"><button type="button" class="mbtn" id="mCancel"></button><button type="submit" class="mbtn primary" id="mSave"></button></div>
+  </form>
+</div>
+<button id="fab" type="button" hidden><b>＋</b><span data-i18n="fab">Catat</span></button>
+<div id="addModal" class="overlay" hidden role="dialog" aria-modal="true" aria-labelledby="aTitle">
+  <div class="sheet">
+    <div class="shead"><h3 id="aTitle" data-i18n="addTitle">Catat transaksi</h3><button type="button" class="ib" id="aClose" aria-label="Tutup">✕</button></div>
+    <div id="aStep1" class="apanel">
+      <div class="seg seg3" role="tablist" id="aTabs">
+        <button type="button" class="tab" data-tab="teks" aria-pressed="true" data-i18n="tabText">✍️ Ketik</button>
+        <button type="button" class="tab" data-tab="foto" aria-pressed="false" data-i18n="tabPhoto">📷 Struk</button>
+        <button type="button" class="tab" data-tab="manual" aria-pressed="false" data-i18n="tabManual">📝 Manual</button>
+      </div>
+      <div class="apanel" data-panel="teks">
+        <textarea id="aText" maxlength="1000" data-i18n-ph="textPh" placeholder="contoh: kopi 18rb, bensin 50rb qris"></textarea>
+        <div class="ex" id="aEx"></div>
+        <p class="hint" data-i18n="textHint">Boleh beberapa transaksi sekaligus. AI akan mengisi kategori, tanggal, dan metode — Anda cek dulu sebelum disimpan.</p>
+        <button type="button" class="bigbtn" id="aParse" data-i18n="parseBtn">Baca dengan AI</button>
+      </div>
+      <div class="apanel" data-panel="foto" hidden>
+        <div class="picks">
+          <label class="pick"><input type="file" accept="image/*" capture="environment" id="aCam"><span>📷</span><b data-i18n="takePhoto">Ambil foto</b></label>
+          <label class="pick"><input type="file" accept="image/*" id="aGal"><span>🖼️</span><b data-i18n="fromGallery">Pilih dari galeri</b></label>
+        </div>
+        <div class="preview" id="aPrev" hidden><img id="aImg" alt=""><div id="aImgInfo"></div></div>
+        <div class="fld"><label for="aCap" data-i18n="capLbl">Catatan tambahan (opsional)</label><input id="aCap" type="text" maxlength="300" data-i18n-ph="capPh" placeholder="mis. bayar pakai QRIS"></div>
+        <button type="button" class="bigbtn" id="aScan" disabled data-i18n="scanBtn">Baca struk</button>
+      </div>
+    </div>
+    <div id="aStep2" class="apanel" hidden>
+      <div class="preview" id="aPrev2" hidden><img id="aImg2" alt=""><div data-i18n="receiptAttached">Foto struk akan ikut disimpan.</div></div>
+      <div class="note" id="aNote" hidden></div>
+      <div id="aDrafts" class="apanel"></div>
+      <div class="merr" id="aErr" role="alert"></div>
+      <div class="mfoot"><button type="button" class="mbtn" id="aBack" data-i18n="back">← Kembali</button><button type="button" class="mbtn primary" id="aSave"></button></div>
+    </div>
+    <div class="merr" id="aErr1" role="alert"></div>
+  </div>
+</div>
+<div id="installBar" hidden><div id="installText"></div><button type="button" class="ib" id="installClose" aria-label="Tutup">✕</button></div>
+<div id="toast" hidden role="status"></div>
+
+<script>
+var KEY = '<?= key ?>';
+var API_URL = "https://script.google.com/macros/s/AKfycbzwtHIDmbvx2OgEma_ANqxpM2kTk2SpL-wPMQc6S_ZSlEOK3MnJ6KmqeyiBIRT1JrUC/exec"; // diisi otomatis pada versi aplikasi (PWA)
+var IS_GAS = typeof google !== 'undefined' && !!google.script && !!google.script.run;
+var IS_APP = !IS_GAS && !!API_URL;
+var LANG = 'id', THEME = 'light';
+var BUKA_CATAT = /[?&]catat\b/.test(location.search);
+function lsGet(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
+function lsSet(k, v) { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} }
+function kunciDari(s) {
+  s = String(s || '').trim();
+  var m = s.match(/key=([A-Za-z0-9_-]{16,})/);
+  if (m) return m[1];
+  return /^[A-Za-z0-9_-]{16,}$/.test(s) ? s : '';
+}
+if (IS_APP) {
+  var _h = kunciDari(location.hash) || kunciDari(location.search);
+  if (_h) { lsSet('finza-key', _h); try { history.replaceState(null, '', location.pathname); } catch (e) {} }
+  KEY = lsGet('finza-key') || '';
+} else if (!IS_GAS) { KEY = ''; }
+var I18N = {
+  id: {
+    months: ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'],
+    mon3: ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'],
+    dow3: ['Sen','Sel','Rab','Kam','Jum','Sab','Min'], dow: ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'],
+    loading: 'Memuat data…', loadFail: 'Gagal memuat data: ', tagline: 'Catatan keuangan pribadi', hello: 'Halo, {0} 👋',
+    notAppsScript: '<b>Dashboard ini hanya bisa dibuka dari Google Apps Script.</b><br>File ini bukan untuk dibuka langsung di browser. Tempel isinya ke Apps Script (file HTML bernama <b>Dashboard</b>), deploy sebagai Web app, lalu buka lewat perintah /dashboard di bot Telegram.',
+    income: 'Pemasukan', expense: 'Pengeluaran', all: 'Semua',
+    netThis: 'Selisih bulan ini', netOf: 'Selisih {0}', leftPct: 'Tersisa {0}% dari pemasukan', noIncome: 'Belum ada pemasukan tercatat',
+    vsSame: ' vs periode sama bln lalu', vsLast: ' vs bulan lalu', noPrev: 'Belum ada data bulan lalu',
+    budgetUsed: 'Budget terpakai', of: 'dari', topCat: 'Kategori terbesar', ofExpense: 'dari pengeluaran', setBudget: 'atur budget lewat /budget',
+    noExpense: 'Belum ada pengeluaran', avgDay: 'Rata-rata keluar/hari', inDays: 'dalam {0} hari', txCount: 'Transaksi', fromReceipt: '{0} dari foto struk',
+    h_kat: 'Pengeluaran per kategori', katSub: 'Total {0} · garis tipis = budget bulanan', noExpMonth: 'Belum ada pengeluaran di bulan ini.',
+    used: 'terpakai', over: 'lewat', left: 'sisa',
+    h_daily: 'Pengeluaran harian', dailyTop: 'Tertinggi tgl {0} · {1}', tx: 'transaksi', noSpend: 'Tidak ada pengeluaran',
+    h_trend: 'Tren 6 bulan', s_trend: 'Pemasukan dan pengeluaran per bulan', net: 'Selisih',
+    h_inc: 'Sumber pemasukan', noIncMonth: 'Belum ada pemasukan di bulan ini.',
+    h_cum: 'Saldo kumulatif', noTx: 'Belum ada transaksi.', noTxYet: 'Belum ada transaksi sampai bulan ini.',
+    cumSub: 'Saldo tercatat {0} per {1} · {2} {3} sejak {4}', up: 'naik', down: 'turun', balance: 'Saldo', dayChange: 'Perubahan hari itu',
+    h_met: 'Metode pembayaran', metSub: 'Dari total pengeluaran {0}', notSpecified: 'Tidak disebut',
+    h_sm: 'Tren per kategori', noExp6: 'Belum ada pengeluaran dalam 6 bulan terakhir.', otherCats: 'Kategori lainnya',
+    smSub: 'Pengeluaran 6 bulan terakhir · skala sama, puncak {0} · batang tegas = {1}',
+    h_dow: 'Pengeluaran per hari dalam seminggu', dowSub: 'Rata-rata per hari · paling boros: {0} ({1})', avg: 'Rata-rata', inNDays: 'dalam {0} hari',
+    h_tbl: 'Transaksi', search: 'Cari keterangan, kategori, merchant…', tblSub: '{0} transaksi · bersih {1}', noMatch: 'Tidak ada transaksi yang cocok.',
+    th: ['Tanggal','Keterangan','Kategori','Metode','Nominal'], seeReceipt: '🧾 Lihat struk', more: 'Tampilkan lebih banyak ({0})',
+    themeTitle: 'Mode siang/malam', langTitle: 'Bahasa / Language',
+    edit: 'Edit', del: 'Hapus', delAsk: 'Hapus transaksi ini?', cancel: 'Batal', save: 'Simpan', saving: 'Menyimpan…', deleting: 'Menghapus…',
+    editTitle: 'Edit transaksi', fAmount: 'Nominal (Rp)', fDate: 'Tanggal', fCat: 'Kategori', fDesc: 'Keterangan', fMerchant: 'Merchant / toko', fMethod: 'Metode',
+    noMethod: '— Tidak disebut —', toastDel: 'Transaksi dihapus', toastSave: 'Perubahan disimpan', errAmount: 'Nominal harus lebih dari 0.', errDate: 'Tanggal wajib diisi dan tidak boleh di masa depan.',
+    errSave: 'Gagal menyimpan: ', errDel: 'Gagal menghapus: ', demoOnly: 'Mode demo: perubahan tidak disimpan.',
+    fab: 'Catat', addTitle: 'Catat transaksi', tabText: '✍️ Ketik', tabPhoto: '📷 Struk', tabManual: '📝 Manual',
+    textPh: 'contoh: kopi 18rb, bensin 50rb qris\ngaji 5jt kemarin', textHint: 'Boleh beberapa transaksi sekaligus. AI mengisi kategori, tanggal, dan metode — Anda cek dulu sebelum disimpan.',
+    ex: ['kopi 18rb', 'bensin 50rb qris', 'makan siang 35rb, parkir 5rb', 'gaji 5jt'],
+    parseBtn: 'Baca dengan AI', reading: 'Membaca…', takePhoto: 'Ambil foto', fromGallery: 'Pilih dari galeri',
+    capLbl: 'Catatan tambahan (opsional)', capPh: 'mis. bayar pakai QRIS', scanBtn: 'Baca struk', receiptAttached: 'Foto struk akan ikut disimpan.',
+    photoBad: 'Foto tidak bisa dibuka. Coba foto lain (JPG/PNG).', photoInfo: 'Foto siap · {0} KB', back: '← Kembali', saveN: 'Simpan ({0})',
+    needText: 'Tulis transaksinya dulu, mis. "kopi 18rb".', noTxFound: 'Tidak ada nominal yang terbaca. Contoh: "kopi 18rb".', removeDraft: 'Hapus baris ini',
+    toastAdd: '✅ {0} transaksi dicatat', savingBg: 'Menyimpan…', aiNote: 'Catatan AI: ', addLine: '+ Tambah baris', netErr: 'Tidak ada koneksi internet. Coba lagi.',
+    loginTitle: 'Masuk ke FINZA', loginLead: 'Aplikasi ini memakai link pribadi dari bot Telegram FINZA.',
+    loginS1: 'Buka bot FINZA di Telegram, ketik /app', loginS2: 'Ketuk link yang dikirim bot — selesai. Atau salin link itu dan tempel di bawah.',
+    loginPh: 'Tempel link atau kunci di sini', loginBtn: 'Masuk', keyBad: 'Link/kunci tidak valid atau akun nonaktif. Minta link baru dengan /app di bot.',
+    logout: 'Keluar dari aplikasi', logoutAsk: 'Ketuk lagi untuk keluar', install: 'Instal aplikasi',
+    iosHint: 'Pasang FINZA di layar utama: ketuk <b>Bagikan</b> ⬆️ lalu <b>Tambah ke Layar Utama</b>.', cached: 'Menampilkan data terakhir (offline)'
+  },
+  en: {
+    months: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    mon3: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    dow3: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], dow: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+    loading: 'Loading data…', loadFail: 'Failed to load data: ', tagline: 'Personal finance tracker', hello: 'Hi, {0} 👋',
+    notAppsScript: '<b>This dashboard only opens from Google Apps Script.</b><br>This file is not meant to be opened directly in a browser. Paste it into Apps Script (an HTML file named <b>Dashboard</b>), deploy it as a Web app, then open it with the /dashboard command in the Telegram bot.',
+    income: 'Income', expense: 'Expenses', all: 'All',
+    netThis: 'Net this month', netOf: 'Net {0}', leftPct: '{0}% of income left', noIncome: 'No income recorded yet',
+    vsSame: ' vs same period last month', vsLast: ' vs last month', noPrev: 'No data for last month',
+    budgetUsed: 'Budget used', of: 'of', topCat: 'Top category', ofExpense: 'of expenses', setBudget: 'set budgets with /budget',
+    noExpense: 'No expenses yet', avgDay: 'Avg. spend/day', inDays: 'over {0} days', txCount: 'Transactions', fromReceipt: '{0} from receipt photos',
+    h_kat: 'Spending by category', katSub: 'Total {0} · thin line = monthly budget', noExpMonth: 'No expenses this month yet.',
+    used: 'used', over: 'over by', left: 'left',
+    h_daily: 'Daily spending', dailyTop: 'Highest on day {0} · {1}', tx: 'transactions', noSpend: 'No spending',
+    h_trend: '6-month trend', s_trend: 'Income and expenses per month', net: 'Net',
+    h_inc: 'Income sources', noIncMonth: 'No income this month yet.',
+    h_cum: 'Cumulative balance', noTx: 'No transactions yet.', noTxYet: 'No transactions up to this month.',
+    cumSub: 'Recorded balance {0} as of {1} · {2} {3} since {4}', up: 'up', down: 'down', balance: 'Balance', dayChange: 'Change that day',
+    h_met: 'Payment methods', metSub: 'Out of total spending {0}', notSpecified: 'Not specified',
+    h_sm: 'Trend by category', noExp6: 'No expenses in the last 6 months.', otherCats: 'Other categories',
+    smSub: 'Spending over the last 6 months · same scale, peak {0} · solid bar = {1}',
+    h_dow: 'Spending by day of week', dowSub: 'Average per day · biggest spender: {0} ({1})', avg: 'Average', inNDays: 'across {0} days',
+    h_tbl: 'Transactions', search: 'Search description, category, merchant…', tblSub: '{0} transactions · net {1}', noMatch: 'No matching transactions.',
+    th: ['Date','Description','Category','Method','Amount'], seeReceipt: '🧾 View receipt', more: 'Show more ({0})',
+    themeTitle: 'Light/dark mode', langTitle: 'Language / Bahasa',
+    edit: 'Edit', del: 'Delete', delAsk: 'Delete this transaction?', cancel: 'Cancel', save: 'Save', saving: 'Saving…', deleting: 'Deleting…',
+    editTitle: 'Edit transaction', fAmount: 'Amount (Rp)', fDate: 'Date', fCat: 'Category', fDesc: 'Description', fMerchant: 'Merchant / store', fMethod: 'Method',
+    noMethod: '— Not specified —', toastDel: 'Transaction deleted', toastSave: 'Changes saved', errAmount: 'Amount must be greater than 0.', errDate: 'Date is required and cannot be in the future.',
+    errSave: 'Could not save: ', errDel: 'Could not delete: ', demoOnly: 'Demo mode: changes are not saved.',
+    fab: 'Add', addTitle: 'Add transaction', tabText: '✍️ Type', tabPhoto: '📷 Receipt', tabManual: '📝 Manual',
+    textPh: 'e.g. coffee 18k, fuel 50k qris\nsalary 5m yesterday', textHint: 'You can add several at once. AI fills in category, date and method — you review before saving.',
+    ex: ['coffee 18k', 'fuel 50k qris', 'lunch 35k, parking 5k', 'salary 5m'],
+    parseBtn: 'Read with AI', reading: 'Reading…', takePhoto: 'Take photo', fromGallery: 'Choose from gallery',
+    capLbl: 'Extra note (optional)', capPh: 'e.g. paid with QRIS', scanBtn: 'Read receipt', receiptAttached: 'The receipt photo will be saved too.',
+    photoBad: 'This photo cannot be opened. Try another one (JPG/PNG).', photoInfo: 'Photo ready · {0} KB', back: '← Back', saveN: 'Save ({0})',
+    needText: 'Type the transaction first, e.g. "coffee 18k".', noTxFound: 'No amount found. Example: "coffee 18k".', removeDraft: 'Remove this row',
+    toastAdd: '✅ {0} transaction(s) recorded', savingBg: 'Saving…', aiNote: 'AI note: ', addLine: '+ Add row', netErr: 'No internet connection. Please try again.',
+    loginTitle: 'Sign in to FINZA', loginLead: 'This app uses your private link from the FINZA Telegram bot.',
+    loginS1: 'Open the FINZA bot in Telegram, type /app', loginS2: 'Tap the link the bot sends — done. Or copy that link and paste it below.',
+    loginPh: 'Paste your link or key here', loginBtn: 'Sign in', keyBad: 'Invalid link/key or inactive account. Get a new link with /app in the bot.',
+    logout: 'Sign out of the app', logoutAsk: 'Tap again to sign out', install: 'Install app',
+    iosHint: 'Add FINZA to your Home Screen: tap <b>Share</b> ⬆️ then <b>Add to Home Screen</b>.', cached: 'Showing last saved data (offline)'
+  }
+};
+// nama kategori & metode bawaan dalam bahasa Inggris (data di Sheets tetap bahasa Indonesia)
+var KAT_EN = { 'Makan & Minum': 'Food & Drinks', 'Belanja Harian': 'Groceries & Daily Needs', 'Transportasi': 'Transportation',
+  'Tagihan & Utilitas': 'Bills & Utilities', 'Tempat Tinggal': 'Housing', 'Kesehatan': 'Health',
+  'Pendidikan & Pengembangan Diri': 'Education & Self-Development', 'Hiburan & Langganan': 'Entertainment & Subscriptions',
+  'Belanja Pribadi': 'Personal Shopping', 'Keluarga & Sosial': 'Family & Social', 'Zakat, Infaq & Sedekah': 'Zakat & Charity',
+  'Cicilan & Utang': 'Installments & Debt', 'Tabungan & Investasi': 'Savings & Investments', 'Pengeluaran Lain': 'Other Expenses',
+  'Gaji': 'Salary', 'Bonus & THR': 'Bonus & Holiday Allowance', 'Usaha & Sampingan': 'Business & Side Income',
+  'Hasil Investasi': 'Investment Returns', 'Pemberian & Hadiah': 'Gifts Received', 'Pemasukan Lain': 'Other Income' };
+var MET_EN = { 'Tunai': 'Cash', 'Kartu Kredit': 'Credit Card', 'Lainnya': 'Other' };
+function t(k) { var v = (I18N[LANG] && I18N[LANG][k] !== undefined) ? I18N[LANG][k] : I18N.id[k]; var a = arguments;
+  return typeof v === 'string' ? v.replace(/\{(\d)\}/g, function (_, i) { return a[+i + 1]; }) : v; }
+function kn(n) { return LANG === 'en' && KAT_EN[n] ? KAT_EN[n] : n; }
+function mn(n) { return LANG === 'en' && MET_EN[n] ? MET_EN[n] : n; }
+function monthName(m) { return t('months')[+m.slice(5, 7) - 1] + ' ' + m.slice(0, 4); }
+function mon3(m) { return t('mon3')[+m.slice(5, 7) - 1]; }
+
+var DATA = null, CUR = null, FILTER = 'all', LIMIT = 50;
+
+function rp(n) { return 'Rp' + Math.round(Math.abs(n)).toString().replace(/\B(?=(\d{3})+(?!\d))/g, LANG === 'en' ? ',' : '.'); }
+function rpSigned(n) { return (n < 0 ? '−' : '') + rp(n); }
+function compact(n) {
+  var a = Math.abs(n);
+  var dec = function (x) { var s = x.toFixed(1).replace('.0', ''); return LANG === 'en' ? s : s.replace('.', ','); };
+  if (a >= 1e9) return dec(n / 1e9) + (LANG === 'en' ? 'B' : ' M');
+  if (a >= 1e6) return dec(n / 1e6) + (LANG === 'en' ? 'M' : ' jt');
+  if (a >= 1e3) return Math.round(n / 1e3) + (LANG === 'en' ? 'k' : ' rb');
+  return String(Math.round(n));
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+function css(v) { return getComputedStyle(document.documentElement).getPropertyValue(v).trim(); }
+function ym(d) { return d.slice(0, 7); }
+function shiftMonth(m, n) { var y = +m.slice(0, 4), mo = +m.slice(5, 7) - 1 + n; y += Math.floor(mo / 12); mo = ((mo % 12) + 12) % 12; return y + '-' + String(mo + 1).padStart(2, '0'); }
+function daysIn(m) { return new Date(+m.slice(0, 4), +m.slice(5, 7), 0).getDate(); }
+function tgl(d) { return LANG === 'en' ? mon3(d) + ' ' + (+d.slice(8, 10)) : +d.slice(8, 10) + ' ' + mon3(d); }
+function niceMax(v) { if (v <= 0) return 1; var p = Math.pow(10, Math.floor(Math.log10(v))); var n = v / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p; }
+
+/* ---------- tooltip ---------- */
+var tip = document.getElementById('tip');
+function showTip(html, ev) {
+  tip.innerHTML = html; tip.style.opacity = 1;
+  var x = ev.clientX + 14, y = ev.clientY + 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - 14;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - 14;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+function bindTips(root) {
+  root.querySelectorAll('[data-tip]').forEach(function (el) {
+    el.addEventListener('mousemove', function (e) { showTip(el.getAttribute('data-tip'), e); });
+    el.addEventListener('mouseleave', hideTip);
+    el.addEventListener('click', function (e) { showTip(el.getAttribute('data-tip'), e); });
+  });
+}
+
+/* ---------- data ---------- */
+function load() {
+  if (!IS_GAS && !IS_APP) { document.getElementById('loading').innerHTML = t('notAppsScript'); return; }
+  if (IS_APP && !KEY) { showLogin(''); return; }
+  document.getElementById('refresh').disabled = true;
+  server('getDashboardData', [KEY], function (d) { onData(d); simpanCache(); }, function (e) {
+    var msg = e && e.message ? e.message : String(e);
+    document.getElementById('refresh').disabled = false;
+    if (IS_APP && /tidak valid|not valid|nonaktif|inactive/i.test(msg)) { lsSet('finza-key', null); lsSet('finza-data', null); KEY = ''; DATA = null; showLogin(t('keyBad')); return; }
+    if (DATA) toast(t('loadFail') + msg);
+    else document.getElementById('loading').textContent = t('loadFail') + msg;
+  });
+}
+function simpanCache() {
+  if (!IS_APP || !DATA) return;
+  var d = Object.assign({}, DATA, { transaksi: DATA.transaksi.filter(function (x) { return !x.pending; }) });
+  lsSet('finza-data', JSON.stringify({ k: KEY, d: d }));
+}
+function showLogin(err) {
+  document.getElementById('loading').hidden = true; document.getElementById('app').hidden = true;
+  document.getElementById('fab').hidden = true; document.getElementById('logoutBtn').hidden = true;
+  document.getElementById('login').hidden = false; document.getElementById('toast').hidden = true;
+  document.getElementById('loginErr').textContent = err || '';
+  applyStatic();
+}
+document.getElementById('login').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var k = kunciDari(document.getElementById('loginKey').value);
+  if (!k) { document.getElementById('loginErr').textContent = t('keyBad'); return; }
+  KEY = k; lsSet('finza-key', k);
+  document.getElementById('login').hidden = true; document.getElementById('loading').hidden = false;
+  load();
+});
+function onData(d) {
+  DATA = d;
+  if (BUKA_CATAT) { BUKA_CATAT = false; setTimeout(function () { openAdd(); }, 0); }
+  document.getElementById('login').hidden = true;
+  document.getElementById('fab').hidden = false;
+  if (IS_APP) document.getElementById('logoutBtn').hidden = false;
+  if (d.bahasa === 'en' || d.bahasa === 'id') LANG = d.bahasa;
+  if (d.tema === 'dark' || d.tema === 'light') THEME = d.tema;
+  applyTheme(); simpanLokal();
+  document.getElementById('refresh').disabled = false;
+  var months = {}; var nowM = ym(d.hariIni); months[nowM] = 1;
+  d.transaksi.forEach(function (t) { months[ym(t.tanggal)] = 1; });
+  var list = Object.keys(months).sort().reverse();
+  var sel = document.getElementById('month');
+  sel.innerHTML = list.map(function (m) { return '<option value="' + m + '">' + monthName(m) + '</option>'; }).join('');
+  if (!CUR || list.indexOf(CUR) < 0) CUR = nowM;
+  sel.value = CUR;
+  applyStatic();
+  document.getElementById('loading').hidden = true;
+  document.getElementById('app').hidden = false;
+  render();
+}
+
+function sumBy(rows, tipe) { return rows.reduce(function (a, t) { return a + (t.tipe === tipe ? t.nominal : 0); }, 0); }
+
+function render() {
+  var opts = Array.prototype.map.call(document.getElementById('month').options, function (o) { return o.value; });
+  document.getElementById('prev').disabled = opts.indexOf(CUR) === opts.length - 1;
+  document.getElementById('next').disabled = opts.indexOf(CUR) === 0;
+  var rows = DATA.transaksi.filter(function (t) { return ym(t.tanggal) === CUR; });
+  // bulan berjalan dibandingkan dengan periode yang sama bulan lalu (tgl 1 s.d. hari ini) agar adil
+  var cutDay = CUR === ym(DATA.hariIni) ? +DATA.hariIni.slice(8, 10) : 31;
+  var prev = DATA.transaksi.filter(function (t) { return ym(t.tanggal) === shiftMonth(CUR, -1) && +t.tanggal.slice(8, 10) <= cutDay; });
+  renderKpis(rows, prev);
+  renderKategori(rows);
+  renderDaily(rows);
+  renderTrend();
+  renderIncome(rows);
+  renderCumulative();
+  renderMethods(rows);
+  renderSmallMultiples();
+  renderWeekday(rows);
+  renderTable(rows);
+}
+
+/* ---------- KPI ---------- */
+function deltaHtml(cur, prev, upIsGood) {
+  var lbl = CUR === ym(DATA.hariIni) ? t('vsSame') : t('vsLast');
+  if (!prev) return '<span>' + t('noPrev') + '</span>';
+  var pct = (cur - prev) / prev * 100, up = pct >= 0;
+  var cls = up ? (upIsGood ? 'up-good' : 'up-bad') : (upIsGood ? 'down-bad' : 'down-good');
+  return '<span class="' + cls + '">' + (up ? '▲ ' : '▼ ') + Math.abs(pct).toFixed(0) + '%</span>' + lbl;
+}
+function renderKpis(rows, prev) {
+  var inc = sumBy(rows, 'Pemasukan'), out = sumBy(rows, 'Pengeluaran');
+  var pin = sumBy(prev, 'Pemasukan'), pout = sumBy(prev, 'Pengeluaran');
+  var isNow = CUR === ym(DATA.hariIni);
+  var days = isNow ? +DATA.hariIni.slice(8, 10) : daysIn(CUR);
+  var net = inc - out;
+  var hero = '<div class="card hero"><div class="label">' + (isNow ? t('netThis') : t('netOf', monthName(CUR))) + '</div>' +
+    '<div class="value">' + rpSigned(net) + '</div>' +
+    '<div class="note">' + (inc ? t('leftPct', Math.round(net / inc * 100)) : t('noIncome')) + '</div>' +
+    '<div class="pills">' +
+      '<div class="pill"><div class="pl"><i>↓</i>' + t('income') + '</div><div class="pv">' + rp(inc) + '</div><div class="pd delta">' + deltaHtml(inc, pin, true) + '</div></div>' +
+      '<div class="pill"><div class="pl"><i>↑</i>' + t('expense') + '</div><div class="pv">' + rp(out) + '</div><div class="pd delta">' + deltaHtml(out, pout, false) + '</div></div>' +
+    '</div></div>';
+
+  var struk = rows.filter(function (t) { return t.sumber === 'Struk'; }).length;
+  var budgetTot = 0, budgetPakai = 0, per = {};
+  rows.forEach(function (t) { if (t.tipe === 'Pengeluaran') per[t.kategori] = (per[t.kategori] || 0) + t.nominal; });
+  DATA.kategori.forEach(function (k) { if (k.budget && k.tipe === 'Pengeluaran') { budgetTot += k.budget; budgetPakai += per[k.nama] || 0; } });
+  var wide;
+  if (budgetTot) {
+    var p = budgetPakai / budgetTot, col = p >= 1 ? 'var(--critical)' : p >= 0.8 ? 'var(--warning-ink)' : 'var(--accent)';
+    wide = '<div class="card stat wide"><div class="ic">🎯</div><div style="flex:1;min-width:0"><div class="label">' + t('budgetUsed') + '</div>' +
+      '<div class="value">' + Math.round(p * 100) + '% <span style="font-size:13px;font-weight:600;color:var(--muted)">' + rp(budgetPakai) + ' ' + t('of') + ' ' + rp(budgetTot) + '</span></div>' +
+      '<div class="meter"><span style="width:' + Math.min(100, p * 100).toFixed(1) + '%;background:' + col + '"></span></div></div></div>';
+  } else {
+    var top = Object.keys(per).sort(function (a, b) { return per[b] - per[a]; })[0];
+    wide = '<div class="card stat wide"><div class="ic">🏷️</div><div style="flex:1;min-width:0"><div class="label">' + t('topCat') + '</div>' +
+      (top ? '<div class="value">' + esc(kn(top)) + '</div><div class="meter"><span style="width:' + (per[top] / out * 100).toFixed(1) + '%"></span></div>' +
+        '<div class="delta" style="margin-top:6px">' + rp(per[top]) + ' · ' + Math.round(per[top] / out * 100) + '% ' + t('ofExpense') + ' · ' + t('setBudget') + '</div>'
+           : '<div class="value">—</div><div class="delta">' + t('noExpense') + '</div>') + '</div></div>';
+  }
+  var stats = '<div class="stats">' +
+    '<div class="card stat"><div class="ic">📅</div><div><div class="label">' + t('avgDay') + '</div><div class="value">' + rp(out / Math.max(days, 1)) + '</div><div class="delta">' + t('inDays', days) + '</div></div></div>' +
+    '<div class="card stat"><div class="ic">🧾</div><div><div class="label">' + t('txCount') + '</div><div class="value">' + rows.length + '</div>' + '<div class="delta">' + t('fromReceipt', struk) + '</div></div></div>' +
+    wide + '</div>';
+  document.getElementById('kpis').innerHTML = hero + stats;
+}
+
+/* ---------- Kategori: horizontal bars + budget marker ---------- */
+function renderKategori(rows) {
+  var el = document.getElementById('katChart');
+  var per = {};
+  rows.forEach(function (t) { if (t.tipe === 'Pengeluaran') per[t.kategori] = (per[t.kategori] || 0) + t.nominal; });
+  var budget = {}; DATA.kategori.forEach(function (k) { if (k.budget && k.tipe === 'Pengeluaran') budget[k.nama] = k.budget; });
+  Object.keys(budget).forEach(function (k) { if (!per[k]) per[k] = 0; });
+  var cats = Object.keys(per).sort(function (a, b) { return per[b] - per[a] || (budget[b] || 0) - (budget[a] || 0); });
+  var total = cats.reduce(function (a, k) { return a + per[k]; }, 0);
+  document.getElementById('katSub').textContent = total ? t('katSub', rp(total)) : '';
+  if (!cats.length) { el.innerHTML = '<div class="empty">' + t('noExpMonth') + '</div>'; return; }
+
+  var W = el.clientWidth || 600, labelW = Math.min(180, W * 0.36), valW = 92, rowH = 34, barH = 14;
+  var plotW = Math.max(60, W - labelW - valW);
+  var maxCh = Math.floor((labelW - 10) / 6.6);
+  var max = cats.reduce(function (a, k) { return Math.max(a, per[k], budget[k] || 0); }, 0);
+  var x = function (v) { return v / max * plotW; };
+  var H = cats.length * rowH;
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="' + t('h_kat') + '">';
+  cats.forEach(function (k, i) {
+    var y = i * rowH, v = per[k], b = budget[k], bw = Math.max(v > 0 ? 3 : 0, x(v));
+    var cy = y + rowH / 2;
+    var pct = total ? Math.round(v / total * 100) : 0;
+    var tipHtml = '<b>' + esc(kn(k)) + '</b><br>' + rp(v) + ' · ' + pct + '% ' + t('ofExpense') +
+      (b ? '<br>Budget ' + rp(b) + ' · ' + t('used') + ' ' + Math.round(v / b * 100) + '%' + (v > b ? ' (' + t('over') + ' ' + rp(v - b) + ')' : ' (' + t('left') + ' ' + rp(b - v) + ')') : '');
+    s += '<g data-tip="' + esc(tipHtml) + '" style="cursor:default">';
+    s += '<rect x="0" y="' + y + '" width="' + W + '" height="' + rowH + '" fill="transparent"/>';
+    s += '<text x="0" y="' + (cy + 4) + '" font-size="12" fill="' + css('--ink-2') + '">' + esc(kn(k).length > maxCh ? kn(k).slice(0, maxCh - 1) + '…' : kn(k)) + '</text>';
+    // bar: square at baseline, 4px rounded data-end
+    if (bw > 0) {
+      var r = Math.min(4, bw / 2);
+      s += '<path d="M' + labelW + ' ' + (cy - barH / 2) + 'h' + (bw - r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (barH - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 -' + r + ' ' + r + 'h-' + (bw - r) + 'z" fill="' + css('--accent') + '"/>';
+    }
+    if (b) {
+      var bx = labelW + x(b);
+      s += '<line x1="' + bx + '" x2="' + bx + '" y1="' + (cy - 11) + '" y2="' + (cy + 11) + '" stroke="' + css('--ink-2') + '" stroke-width="2" stroke-linecap="round"/>';
+    }
+    var status = b ? (v > b ? ' ⛔' : v >= 0.8 * b ? ' ⚠' : '') : '';
+    s += '<text x="' + (labelW + plotW + 8) + '" y="' + (cy + 4) + '" font-size="12" fill="' + css('--ink') + '" style="font-variant-numeric:tabular-nums">' + compact(v) + status + '</text>';
+    s += '</g>';
+  });
+  s += '<line x1="' + labelW + '" x2="' + labelW + '" y1="0" y2="' + H + '" stroke="' + css('--axis') + '"/>';
+  s += '</svg>';
+  el.innerHTML = s;
+  bindTips(el);
+}
+
+/* ---------- Harian: columns ---------- */
+function renderDaily(rows) {
+  var el = document.getElementById('dailyChart');
+  var n = daysIn(CUR), per = new Array(n + 1).fill(0), cnt = new Array(n + 1).fill(0);
+  rows.forEach(function (t) { if (t.tipe === 'Pengeluaran') { var d = +t.tanggal.slice(8, 10); per[d] += t.nominal; cnt[d]++; } });
+  var maxV = Math.max.apply(null, per), top = per.indexOf(maxV);
+  document.getElementById('dailySub').textContent = maxV ? t('dailyTop', top, rp(maxV)) : t('noExpense');
+  var W = el.clientWidth || 420, H = 220, padL = 44, padB = 22, padT = 8;
+  var plotW = W - padL, plotH = H - padB - padT, max = niceMax(maxV);
+  var band = plotW / n, bw = Math.max(2, Math.min(24, band - 2));
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="' + t('h_daily') + '">';
+  for (var g = 0; g <= 4; g++) {
+    var gy = padT + plotH - plotH * g / 4;
+    s += '<line x1="' + padL + '" x2="' + W + '" y1="' + gy + '" y2="' + gy + '" stroke="' + css(g ? '--grid' : '--axis') + '"/>';
+    s += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="' + css('--muted') + '">' + compact(max * g / 4) + '</text>';
+  }
+  for (var d = 1; d <= n; d++) {
+    var v = per[d], h = v / max * plotH, x0 = padL + (d - 1) * band + (band - bw) / 2, y0 = padT + plotH - h;
+    var tipHtml = '<b>' + tgl(CUR + '-' + String(d).padStart(2, '0')) + '</b><br>' + (v ? rp(v) + ' · ' + cnt[d] + ' ' + t('tx') : t('noSpend'));
+    s += '<g data-tip="' + esc(tipHtml) + '"><rect x="' + (padL + (d - 1) * band) + '" y="' + padT + '" width="' + band + '" height="' + (plotH + padB) + '" fill="transparent"/>';
+    if (h > 0) {
+      var r = Math.min(4, bw / 2, h);
+      s += '<path d="M' + x0 + ' ' + (padT + plotH) + 'v-' + (h - r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + 'h' + (bw - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (h - r) + 'z" fill="' + css('--s-out') + '"/>';
+    }
+    s += '</g>';
+    if (d === 1 || d % 5 === 0) s += '<text x="' + (padL + (d - 0.5) * band) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="' + css('--muted') + '">' + d + '</text>';
+  }
+  s += '</svg>';
+  el.innerHTML = s;
+  bindTips(el);
+}
+
+/* ---------- Tren 6 bulan: grouped columns ---------- */
+function renderTrend() {
+  var el = document.getElementById('trendChart');
+  var months = []; for (var i = 5; i >= 0; i--) months.push(shiftMonth(CUR, -i));
+  var vals = months.map(function (m) {
+    var r = DATA.transaksi.filter(function (t) { return ym(t.tanggal) === m; });
+    return { m: m, inc: sumBy(r, 'Pemasukan'), out: sumBy(r, 'Pengeluaran') };
+  });
+  var W = el.clientWidth || 640, H = 230, padL = 48, padB = 24, padT = 16;
+  var plotW = W - padL, plotH = H - padB - padT;
+  var max = niceMax(Math.max.apply(null, vals.map(function (v) { return Math.max(v.inc, v.out); })));
+  var band = plotW / 6, bw = Math.min(24, (band - 16) / 2);
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="' + t('h_trend') + '">';
+  for (var g = 0; g <= 4; g++) {
+    var gy = padT + plotH - plotH * g / 4;
+    s += '<line x1="' + padL + '" x2="' + W + '" y1="' + gy + '" y2="' + gy + '" stroke="' + css(g ? '--grid' : '--axis') + '"/>';
+    s += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="' + css('--muted') + '">' + compact(max * g / 4) + '</text>';
+  }
+  function col(x0, v, color) {
+    var h = v / max * plotH; if (h <= 0) return '';
+    var r = Math.min(4, bw / 2, h);
+    return '<path d="M' + x0 + ' ' + (padT + plotH) + 'v-' + (h - r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + 'h' + (bw - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (h - r) + 'z" fill="' + color + '"/>';
+  }
+  vals.forEach(function (v, i) {
+    var cx = padL + band * i + band / 2;
+    var net = v.inc - v.out;
+    var tipHtml = '<b>' + monthName(v.m) + '</b>' +
+      '<div class="k"><i style="background:' + css('--s-in') + '"></i>' + t('income') + ' ' + rp(v.inc) + '</div>' +
+      '<div class="k"><i style="background:' + css('--s-out') + '"></i>' + t('expense') + ' ' + rp(v.out) + '</div>' + t('net') + ' ' + rpSigned(net);
+    s += '<g data-tip="' + esc(tipHtml) + '"><rect x="' + (padL + band * i) + '" y="0" width="' + band + '" height="' + H + '" fill="' + (v.m === CUR ? css('--hover') : 'transparent') + '"/>';
+    s += col(cx - bw - 1, v.inc, css('--s-in'));           // 2px surface gap between the pair
+    s += col(cx + 1, v.out, css('--s-out'));
+    s += '</g>';
+    s += '<text x="' + cx + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="' + css(v.m === CUR ? '--ink' : '--muted') + '"' + (v.m === CUR ? ' font-weight="600"' : '') + '>' + mon3(v.m) + '</text>';
+  });
+  s += '</svg>';
+  el.innerHTML = s;
+  bindTips(el);
+}
+
+/* ---------- Sumber pemasukan ---------- */
+function renderIncome(rows) {
+  var per = {};
+  rows.forEach(function (t) { if (t.tipe === 'Pemasukan') per[t.kategori] = (per[t.kategori] || 0) + t.nominal; });
+  var cats = Object.keys(per).sort(function (a, b) { return per[b] - per[a]; });
+  var total = cats.reduce(function (a, k) { return a + per[k]; }, 0);
+  document.getElementById('incSub').textContent = total ? 'Total ' + rp(total) : '';
+  document.getElementById('incList').innerHTML = cats.length ? cats.map(function (k) {
+    var p = per[k] / total * 100;
+    return '<div class="list-row"><span>' + esc(kn(k)) + '</span><span class="num" style="font-variant-numeric:tabular-nums">' + rp(per[k]) + '</span><div class="bar"><span style="width:' + p.toFixed(1) + '%"></span></div></div>';
+  }).join('') : '<div class="empty">' + t('noIncMonth') + '</div>';
+}
+
+/* ---------- helpers tambahan ---------- */
+function pad2(n) { return String(n).padStart(2, '0'); }
+function endOfView() { return CUR === ym(DATA.hariIni) ? DATA.hariIni : CUR + '-' + pad2(daysIn(CUR)); }
+function addDays(d, n) { return new Date(Date.parse(d + 'T00:00:00Z') + n * 864e5).toISOString().slice(0, 10); }
+function niceStep(raw) {
+  if (raw <= 0) return 1;
+  var p = Math.pow(10, Math.floor(Math.log10(raw))), n = raw / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 2.5 ? 2.5 : n <= 5 ? 5 : 10) * p;
+}
+function colPath(x0, base, h, bw) {
+  if (h <= 0) return '';
+  var r = Math.min(4, bw / 2, h);
+  return 'M' + x0 + ' ' + base + 'v-' + (h - r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' -' + r + 'h' + (bw - 2 * r) + 'a' + r + ' ' + r + ' 0 0 1 ' + r + ' ' + r + 'v' + (h - r) + 'z';
+}
+
+/* ---------- Saldo kumulatif: garis + crosshair ---------- */
+function renderCumulative() {
+  var el = document.getElementById('cumChart');
+  if (!DATA.transaksi.length) { el.innerHTML = '<div class="empty">' + t('noTx') + '</div>'; document.getElementById('cumSub').textContent = ''; return; }
+  var end = endOfView();
+  var first = DATA.transaksi.reduce(function (a, t) { return t.tanggal < a ? t.tanggal : a; }, '9999');
+  var start = shiftMonth(CUR, -5) + '-01';
+  if (first > start) start = first;
+  if (start > end) { el.innerHTML = '<div class="empty">' + t('noTxYet') + '</div>'; return; }
+  var base = 0, delta = {};
+  DATA.transaksi.forEach(function (t) {
+    var v = t.tipe === 'Pemasukan' ? t.nominal : -t.nominal;
+    if (t.tanggal < start) base += v; else if (t.tanggal <= end) delta[t.tanggal] = (delta[t.tanggal] || 0) + v;
+  });
+  var pts = [], run = base;
+  for (var d = start; d <= end; d = addDays(d, 1)) { run += delta[d] || 0; pts.push({ d: d, v: run, chg: delta[d] || 0 }); }
+  var last = pts[pts.length - 1];
+  var change = last.v - base;
+  document.getElementById('cumSub').textContent = t('cumSub', rpSigned(last.v), tgl(last.d), change >= 0 ? t('up') : t('down'), rp(change), tgl(start));
+
+  var W = el.clientWidth || 640, H = 230, padL = 52, padR = 70, padT = 12, padB = 24;
+  var plotW = W - padL - padR, plotH = H - padT - padB;
+  var lo = Math.min(0, Math.min.apply(null, pts.map(function (p) { return p.v; })));
+  var hi = Math.max(0, Math.max.apply(null, pts.map(function (p) { return p.v; })));
+  var step = niceStep((hi - lo) / 4 || 1);
+  lo = Math.floor(lo / step) * step; hi = Math.ceil(hi / step) * step; if (hi === lo) hi = lo + step;
+  var X = function (i) { return padL + (pts.length === 1 ? plotW / 2 : i / (pts.length - 1) * plotW); };
+  var Y = function (v) { return padT + (hi - v) / (hi - lo) * plotH; };
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="' + t('h_cum') + '">';
+  for (var g = lo; g <= hi + step / 2; g += step) {
+    var gy = Y(g);
+    s += '<line x1="' + padL + '" x2="' + (W - padR) + '" y1="' + gy + '" y2="' + gy + '" stroke="' + css(g === 0 ? '--axis' : '--grid') + '"/>';
+    s += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="' + css('--muted') + '">' + (g < 0 ? '−' : '') + compact(Math.abs(g)) + '</text>';
+  }
+  pts.forEach(function (p, i) {
+    if (p.d.slice(8) === '01' || i === 0) {
+      s += '<text x="' + X(i) + '" y="' + (H - 6) + '" text-anchor="' + (i === 0 ? 'start' : 'middle') + '" font-size="11" fill="' + css('--muted') + '">' + mon3(p.d) + '</text>';
+    }
+  });
+  var line = pts.map(function (p, i) { return (i ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(p.v).toFixed(1); }).join('');
+  var area = line + 'L' + X(pts.length - 1).toFixed(1) + ' ' + Y(0) + 'L' + X(0).toFixed(1) + ' ' + Y(0) + 'Z';
+  s += '<path d="' + area + '" fill="' + css('--accent-wash') + '"/>';
+  s += '<path d="' + line + '" fill="none" stroke="' + css('--accent') + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  var lx = X(pts.length - 1), ly = Y(last.v);
+  s += '<circle cx="' + lx + '" cy="' + ly + '" r="4" fill="' + css('--accent') + '" stroke="' + css('--surface') + '" stroke-width="2"/>';
+  s += '<text x="' + (lx + 8) + '" y="' + (ly + 4) + '" font-size="12" font-weight="600" fill="' + css('--ink') + '">' + (last.v < 0 ? '−' : '') + compact(Math.abs(last.v)) + '</text>';
+  s += '<g id="cumHover" style="display:none"><line id="cumX" y1="' + padT + '" y2="' + (padT + plotH) + '" stroke="' + css('--axis') + '"/>' +
+       '<circle id="cumDot" r="4" fill="' + css('--accent') + '" stroke="' + css('--surface') + '" stroke-width="2"/></g>';
+  s += '<rect id="cumHit" x="' + padL + '" y="0" width="' + plotW + '" height="' + H + '" fill="transparent"/>';
+  s += '</svg>';
+  el.innerHTML = s;
+  var svg = el.querySelector('svg'), hit = el.querySelector('#cumHit'), hov = el.querySelector('#cumHover');
+  function move(ev) {
+    var pt = ev.touches ? ev.touches[0] : ev;
+    var r = svg.getBoundingClientRect(), x = (pt.clientX - r.left) * (W / r.width);
+    var i = Math.max(0, Math.min(pts.length - 1, Math.round((x - padL) / plotW * (pts.length - 1))));
+    var p = pts[i];
+    hov.style.display = '';
+    el.querySelector('#cumX').setAttribute('x1', X(i)); el.querySelector('#cumX').setAttribute('x2', X(i));
+    el.querySelector('#cumDot').setAttribute('cx', X(i)); el.querySelector('#cumDot').setAttribute('cy', Y(p.v));
+    showTip('<b>' + tgl(p.d) + ' ' + p.d.slice(0, 4) + '</b><br>' + t('balance') + ' ' + rpSigned(p.v) +
+      (p.chg ? '<br>' + t('dayChange') + ' ' + (p.chg > 0 ? '+' : '−') + rp(p.chg) : ''), pt);
+  }
+  hit.addEventListener('mousemove', move);
+  hit.addEventListener('touchstart', move, { passive: true });
+  hit.addEventListener('touchmove', move, { passive: true });
+  hit.addEventListener('mouseleave', function () { hov.style.display = 'none'; hideTip(); });
+}
+
+/* ---------- Metode pembayaran ---------- */
+function renderMethods(rows) {
+  var per = {};
+  rows.forEach(function (t) { if (t.tipe === 'Pengeluaran') { var m = t.metode || 'Tidak disebut'; per[m] = (per[m] || 0) + t.nominal; } });
+  var ms = Object.keys(per).sort(function (a, b) {
+    if (a === 'Tidak disebut') return 1; if (b === 'Tidak disebut') return -1; return per[b] - per[a];
+  });
+  var total = ms.reduce(function (a, k) { return a + per[k]; }, 0);
+  document.getElementById('metSub').textContent = total ? t('metSub', rp(total)) : '';
+  document.getElementById('metList').innerHTML = ms.length ? ms.map(function (k) {
+    var p = per[k] / total * 100;
+    return '<div class="list-row"><span>' + esc(k === 'Tidak disebut' ? t('notSpecified') : mn(k)) + ' <span class="m" style="color:var(--muted)">' + Math.round(p) + '%</span></span>' +
+      '<span style="font-variant-numeric:tabular-nums">' + rp(per[k]) + '</span>' +
+      '<div class="bar' + (k === 'Tidak disebut' ? ' neutral' : '') + '"><span style="width:' + p.toFixed(1) + '%;background:' + (k === 'Tidak disebut' ? 'var(--axis)' : 'var(--s-out)') + '"></span></div></div>';
+  }).join('') : '<div class="empty">' + t('noExpMonth') + '</div>';
+}
+
+/* ---------- Tren per kategori: small multiples ---------- */
+function renderSmallMultiples() {
+  var el = document.getElementById('smGrid');
+  var months = []; for (var i = 5; i >= 0; i--) months.push(shiftMonth(CUR, -i));
+  var per = {}, tot = {};
+  DATA.transaksi.forEach(function (t) {
+    if (t.tipe !== 'Pengeluaran') return;
+    var mi = months.indexOf(ym(t.tanggal)); if (mi < 0) return;
+    if (!per[t.kategori]) { per[t.kategori] = [0, 0, 0, 0, 0, 0]; tot[t.kategori] = 0; }
+    per[t.kategori][mi] += t.nominal; tot[t.kategori] += t.nominal;
+  });
+  var cats = Object.keys(per).sort(function (a, b) { return tot[b] - tot[a]; });
+  if (!cats.length) { el.innerHTML = '<div class="empty" style="grid-column:1/-1">' + t('noExp6') + '</div>'; return; }
+  if (cats.length > 6) {   // lipat sisanya ke "Lainnya" agar panel tetap terbaca
+    var other = [0, 0, 0, 0, 0, 0];
+    cats.slice(5).forEach(function (k) { per[k].forEach(function (v, j) { other[j] += v; }); });
+    per['__other'] = other; cats = cats.slice(0, 5).concat('__other');
+  }
+  var max = niceMax(Math.max.apply(null, cats.map(function (k) { return Math.max.apply(null, per[k]); })));
+  var cols = window.innerWidth <= 560 ? 2 : 3;
+  var cw = Math.max(120, (el.clientWidth - 20 * (cols - 1)) / cols), H = 92, padB = 16, plotH = H - padB - 4;
+  var band = cw / 6, bw = Math.min(16, band - 4);
+  el.innerHTML = cats.map(function (k) {
+    var v = per[k], cur = v[5], nm = k === '__other' ? t('otherCats') : kn(k);
+    var s = '<div class="sm-cell"><div class="sm-head"><span title="' + esc(nm) + '">' + esc(nm) + '</span><span>' + compact(cur) + '</span></div>';
+    s += '<svg viewBox="0 0 ' + cw + ' ' + H + '" height="' + H + '" role="img" aria-label="' + esc(nm) + '">';
+    s += '<line x1="0" x2="' + cw + '" y1="' + (4 + plotH) + '" y2="' + (4 + plotH) + '" stroke="' + css('--axis') + '"/>';
+    v.forEach(function (val, j) {
+      var h = val / max * plotH, x0 = band * j + (band - bw) / 2;
+      var tipHtml = '<b>' + esc(nm) + '</b><br>' + monthName(months[j]) + ': ' + rp(val);
+      s += '<g data-tip="' + esc(tipHtml) + '"><rect x="' + band * j + '" y="0" width="' + band + '" height="' + H + '" fill="transparent"/>';
+      s += '<path d="' + colPath(x0, 4 + plotH, h, bw) + '" fill="' + css('--s-out') + '" fill-opacity="' + (j === 5 ? 1 : 0.4) + '"/></g>';
+    });
+    s += '<text x="' + (band / 2) + '" y="' + (H - 3) + '" text-anchor="middle" font-size="10.5" fill="' + css('--muted') + '">' + mon3(months[0]) + '</text>';
+    s += '<text x="' + (band * 5.5) + '" y="' + (H - 3) + '" text-anchor="middle" font-size="10.5" font-weight="600" fill="' + css('--ink-2') + '">' + mon3(months[5]) + '</text>';
+    return s + '</svg></div>';
+  }).join('');
+  document.getElementById('smSub').textContent = t('smSub', compact(max), t('months')[+CUR.slice(5, 7) - 1]);
+  bindTips(el);
+}
+
+/* ---------- Hari dalam seminggu ---------- */
+function renderWeekday(rows) {
+  var el = document.getElementById('dowChart');
+  var HARI = t('dow3'), HARI_P = t('dow');
+  var dow = function (d) { return (new Date(d + 'T00:00:00Z').getUTCDay() + 6) % 7; };
+  var tot = [0, 0, 0, 0, 0, 0, 0], days = [0, 0, 0, 0, 0, 0, 0];
+  for (var d = CUR + '-01', end = endOfView(); d <= end; d = addDays(d, 1)) days[dow(d)]++;
+  rows.forEach(function (t) { if (t.tipe === 'Pengeluaran') tot[dow(t.tanggal)] += t.nominal; });
+  var avg = tot.map(function (v, i) { return days[i] ? v / days[i] : 0; });
+  var maxV = Math.max.apply(null, avg), top = avg.indexOf(maxV);
+  document.getElementById('dowSub').textContent = maxV ? t('dowSub', HARI_P[top], rp(maxV)) : t('noExpense');
+  var W = el.clientWidth || 360, H = 200, padL = 40, padB = 22, padT = 18;
+  var plotW = W - padL, plotH = H - padB - padT, max = niceMax(maxV);
+  var band = plotW / 7, bw = Math.min(24, band - 8);
+  var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" height="' + H + '" role="img" aria-label="' + t('h_dow') + '">';
+  for (var g = 0; g <= 4; g++) {
+    var gy = padT + plotH - plotH * g / 4;
+    s += '<line x1="' + padL + '" x2="' + W + '" y1="' + gy + '" y2="' + gy + '" stroke="' + css(g ? '--grid' : '--axis') + '"/>';
+    s += '<text x="' + (padL - 6) + '" y="' + (gy + 4) + '" text-anchor="end" font-size="11" fill="' + css('--muted') + '">' + compact(max * g / 4) + '</text>';
+  }
+  avg.forEach(function (v, i) {
+    var h = v / max * plotH, x0 = padL + band * i + (band - bw) / 2;
+    var tipHtml = '<b>' + HARI_P[i] + '</b><br>' + t('avg') + ' ' + rp(v) + '<br>Total ' + rp(tot[i]) + ' ' + t('inNDays', days[i]);
+    s += '<g data-tip="' + esc(tipHtml) + '"><rect x="' + (padL + band * i) + '" y="0" width="' + band + '" height="' + H + '" fill="transparent"/>';
+    s += '<path d="' + colPath(x0, padT + plotH, h, bw) + '" fill="' + css('--s-out') + '"/></g>';
+    if (i === top && maxV) s += '<text x="' + (x0 + bw / 2) + '" y="' + (padT + plotH - h - 6) + '" text-anchor="middle" font-size="11" font-weight="600" fill="' + css('--ink') + '">' + compact(v) + '</text>';
+    s += '<text x="' + (padL + band * (i + 0.5)) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="' + css(i === top && maxV ? '--ink' : '--muted') + '"' + (i === top && maxV ? ' font-weight="600"' : '') + '>' + HARI[i] + '</text>';
+  });
+  el.innerHTML = s + '</svg>';
+  bindTips(el);
+}
+
+/* ---------- Tabel ---------- */
+function renderTable(rows) {
+  var q = document.getElementById('q').value.toLowerCase().trim();
+  var list = rows.filter(function (r) {
+    if (FILTER !== 'all' && r.tipe !== FILTER) return false;
+    if (!q) return true;
+    return (r.keterangan + ' ' + r.kategori + ' ' + kn(r.kategori) + ' ' + r.merchant + ' ' + r.metode + ' ' + mn(r.metode)).toLowerCase().indexOf(q) >= 0;
+  }).sort(function (a, b) { return a.tanggal < b.tanggal ? 1 : a.tanggal > b.tanggal ? -1 : 0; });
+  var sum = list.reduce(function (a, r) { return a + (r.tipe === 'Pemasukan' ? r.nominal : -r.nominal); }, 0);
+  document.getElementById('tblSub').textContent = t('tblSub', list.length, rpSigned(sum));
+  var tbl = document.getElementById('tbl');
+  if (!list.length) { tbl.innerHTML = '<tr><td class="empty">' + t('noMatch') + '</td></tr>'; document.getElementById('more').innerHTML = ''; return; }
+  var TH = t('th'), LBL = I18N[LANG];
+  tbl.innerHTML = '<thead><tr><th>' + TH[0] + '</th><th>' + TH[1] + '</th><th class="hide-sm">' + TH[2] + '</th><th class="hide-sm">' + TH[3] + '</th><th class="num">' + TH[4] + '</th><th class="act"><span class="sr" style="position:absolute;left:-9999px">' + LBL.edit + '</span></th></tr></thead><tbody>' +
+    list.slice(0, LIMIT).map(function (t) {
+      var inc = t.tipe === 'Pemasukan';
+      return '<tr data-id="' + esc(t.id) + '"' + (t.pending ? ' class="busy"' : '') + '><td style="white-space:nowrap">' + tgl(t.tanggal) + '</td>' +
+        '<td><div class="tx"><div class="av ' + (inc ? 'in' : 'out') + '">' + esc((kn(t.kategori) || '?').charAt(0)) + '</div><div>' + esc(t.keterangan) + (t.merchant ? '<div class="m">' + esc(t.merchant) + '</div>' : '') +
+        '<div class="m show-sm"><span class="dot" style="background:' + css(inc ? '--s-in' : '--s-out') + '"></span>' + esc(kn(t.kategori)) + (t.metode ? ' · ' + esc(mn(t.metode)) : '') + '</div>' +
+        (t.struk ? '<div class="m"><a href="' + esc(t.struk) + '" target="_blank" rel="noopener">' + LBL.seeReceipt + '</a></div>' : '') + '</div></div></td>' +
+        '<td class="hide-sm"><span class="dot" style="background:' + css(inc ? '--s-in' : '--s-out') + '"></span>' + esc(kn(t.kategori)) + '</td>' +
+        '<td class="hide-sm m">' + esc(t.metode ? mn(t.metode) : '—') + '</td>' +
+        '<td class="num' + (inc ? ' in' : '') + '">' + (inc ? '+' : '−') + rp(t.nominal) + '</td>' +
+        (t.pending ? '<td class="act m">' + esc(I18N[LANG].saving) + '</td></tr>' :
+        '<td class="act"><button type="button" class="ib" data-act="edit" aria-label="' + LBL.edit + '" title="' + LBL.edit + '">✏️</button>' +
+        '<button type="button" class="ib del" data-act="del" aria-label="' + LBL.del + '" title="' + LBL.del + '">🗑</button></td></tr>');
+    }).join('') + '</tbody>';
+  document.getElementById('more').innerHTML = list.length > LIMIT ? '<button class="btn" id="moreBtn">' + t('more', list.length - LIMIT) + '</button>' : '';
+  var mb = document.getElementById('moreBtn');
+  if (mb) mb.onclick = function () { LIMIT += 100; renderTable(rows); };
+}
+
+/* ---------- hapus & edit transaksi ---------- */
+function server(fn, args, ok, fail) {
+  if (IS_GAS) { var r = google.script.run.withSuccessHandler(ok).withFailureHandler(fail); r[fn].apply(r, args); return; }
+  if (!IS_APP) { fail(new Error('offline')); return; }
+  // text/plain = "simple request" (tanpa preflight CORS) — Apps Script membalas JSON lewat redirect googleusercontent.
+  fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: fn, args: args }) })
+    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+    .then(function (j) { if (j && j.ok) ok(j.data); else fail(new Error((j && j.error) || 'Error')); })
+    .catch(function (e) { fail(e && /fetch|network|load failed/i.test(e.message || '') ? new Error(t('netErr')) : e); });
+}
+var toastT;
+function toast(msg, ms) {
+  var el = document.getElementById('toast'); el.textContent = msg; el.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(function () { el.hidden = true; }, ms || 2600);
+}
+function trxById(id) { return DATA.transaksi.find(function (x) { return String(x.id) === String(id); }); }
+function rowsNow() { return DATA.transaksi.filter(function (t) { return ym(t.tanggal) === CUR; }); }
+
+document.getElementById('tbl').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var tr = b.closest('tr'); if (!tr || !tr.dataset.id) return;
+  var id = tr.dataset.id, cell = tr.querySelector('.act');
+  if (b.dataset.act === 'edit') { openEdit(id); return; }
+  if (b.dataset.act === 'del') {
+    cell.innerHTML = '<span class="confirm">' + esc(t('delAsk')) + ' <button type="button" class="mbtn" data-act="no">' + esc(t('cancel')) +
+      '</button><button type="button" class="mbtn danger" data-act="yes">' + esc(t('del')) + '</button></span>';
+    cell.querySelector('[data-act="yes"]').focus();
+    return;
+  }
+  if (b.dataset.act === 'no') { renderTable(rowsNow()); return; }
+  if (b.dataset.act === 'yes') {
+    tr.classList.add('busy'); cell.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
+    cell.querySelector('.confirm').firstChild.textContent = t('deleting') + ' ';
+    server('hapusTransaksi', [KEY, id], function () {
+      DATA.transaksi = DATA.transaksi.filter(function (x) { return String(x.id) !== String(id); });
+      render(); simpanCache(); toast(t('toastDel'));
+    }, function (err) {
+      tr.classList.remove('busy'); renderTable(rowsNow());
+      toast(err && err.message === 'offline' ? t('demoOnly') : t('errDel') + (err && err.message ? err.message : err));
+    });
+  }
+});
+
+var EDIT_ID = null, EDIT_TIPE = 'Pengeluaran';
+function fillKategori(sel) {
+  var opts = DATA.kategori.filter(function (k) { return k.tipe === EDIT_TIPE; });
+  var f = document.getElementById('fKategori');
+  f.innerHTML = opts.map(function (k) { return '<option value="' + esc(k.nama) + '">' + esc(kn(k.nama)) + '</option>'; }).join('');
+  if (sel && opts.some(function (k) { return k.nama === sel; })) f.value = sel;
+}
+function setTipe(v, keepCat) {
+  EDIT_TIPE = v;
+  document.querySelectorAll('#fTipe button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.v === v ? 'true' : 'false'); });
+  fillKategori(keepCat);
+}
+function openEdit(id) {
+  var r = trxById(id); if (!r) return;
+  EDIT_ID = id;
+  var L = I18N[LANG];
+  document.getElementById('mTitle').textContent = L.editTitle;
+  document.querySelector('#fTipe .out').textContent = L.expense;
+  document.querySelector('#fTipe .in').textContent = L.income;
+  [['lNominal', 'fAmount'], ['lTanggal', 'fDate'], ['lKategori', 'fCat'], ['lKet', 'fDesc'], ['lMerchant', 'fMerchant'], ['lMetode', 'fMethod']]
+    .forEach(function (p) { document.getElementById(p[0]).textContent = L[p[1]]; });
+  document.getElementById('mCancel').textContent = L.cancel;
+  document.getElementById('mSave').textContent = L.save;
+  document.getElementById('mErr').textContent = '';
+  var met = ['Tunai', 'Transfer', 'QRIS', 'Debit', 'Kartu Kredit', 'E-Wallet', 'Lainnya'];
+  document.getElementById('fMetode').innerHTML = '<option value="">' + esc(L.noMethod) + '</option>' +
+    met.map(function (m) { return '<option value="' + m + '">' + esc(mn(m)) + '</option>'; }).join('');
+  setTipe(r.tipe, r.kategori);
+  document.getElementById('fNominal').value = r.nominal;
+  document.getElementById('fTanggal').value = r.tanggal;
+  document.getElementById('fTanggal').max = DATA.hariIni;
+  document.getElementById('fKet').value = r.keterangan || '';
+  document.getElementById('fMerchant').value = r.merchant || '';
+  document.getElementById('fMetode').value = r.metode || '';
+  document.getElementById('mSave').disabled = false;
+  document.getElementById('modal').hidden = false;
+  document.getElementById('fNominal').focus();
+}
+function closeEdit() { document.getElementById('modal').hidden = true; EDIT_ID = null; }
+document.querySelectorAll('#fTipe button').forEach(function (b) { b.onclick = function () { setTipe(b.dataset.v, null); }; });
+document.getElementById('mCancel').onclick = closeEdit;
+document.getElementById('modal').addEventListener('click', function (e) { if (e.target.id === 'modal') closeEdit(); });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  if (!document.getElementById('modal').hidden) closeEdit(); else if (!document.getElementById('addModal').hidden) closeAdd();
+});
+document.getElementById('editForm').addEventListener('submit', function (e) {
+  e.preventDefault();
+  var data = {
+    tipe: EDIT_TIPE,
+    kategori: document.getElementById('fKategori').value,
+    nominal: Math.round(Number(document.getElementById('fNominal').value)),
+    tanggal: document.getElementById('fTanggal').value,
+    keterangan: document.getElementById('fKet').value.trim(),
+    merchant: document.getElementById('fMerchant').value.trim(),
+    metode: document.getElementById('fMetode').value
+  };
+  var err = document.getElementById('mErr');
+  if (!(data.nominal > 0)) { err.textContent = t('errAmount'); return; }
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data.tanggal) || data.tanggal > DATA.hariIni) { err.textContent = t('errDate'); return; }
+  var btn = document.getElementById('mSave'); btn.disabled = true; btn.textContent = t('saving'); err.textContent = '';
+  var id = EDIT_ID;
+  server('ubahTransaksi', [KEY, id, data], function (res) {
+    var r = trxById(id); if (r) Object.assign(r, res);
+    closeEdit(); render(); simpanCache(); toast(t('toastSave'));
+  }, function (e2) {
+    btn.disabled = false; btn.textContent = t('save');
+    err.textContent = e2 && e2.message === 'offline' ? t('demoOnly') : t('errSave') + (e2 && e2.message ? e2.message : e2);
+  });
+});
+
+/* ---------- catat transaksi dari aplikasi ---------- */
+var METODE = ['Tunai', 'Transfer', 'QRIS', 'Debit', 'Kartu Kredit', 'E-Wallet', 'Lainnya'];
+var ADD = { tab: 'teks', drafts: [], foto: null, teks: '', busy: false };
+function $(id) { return document.getElementById(id); }
+function openAdd(tab) {
+  ADD.drafts = []; ADD.foto = null; ADD.teks = ''; ADD.busy = false;
+  $('aText').value = ''; $('aCap').value = ''; $('aPrev').hidden = true; $('aScan').disabled = true;
+  $('aCam').value = ''; $('aGal').value = ''; $('aErr1').textContent = '';
+  showStep(1); setTab(tab || (ADD.tab === 'foto' ? 'foto' : 'teks'));
+  $('addModal').hidden = false; document.body.style.overflow = 'hidden'; $('toast').hidden = true;
+  if (ADD.tab === 'teks' && matchMedia('(min-width: 700px)').matches) $('aText').focus();
+}
+function closeAdd() { if (ADD.busy) return; $('addModal').hidden = true; document.body.style.overflow = ''; }
+function showStep(n) { $('aStep1').hidden = n !== 1; $('aStep2').hidden = n !== 2; $('aErr1').textContent = ''; $('aErr').textContent = ''; }
+function setTab(tab) {
+  if (tab === 'manual') {
+    ADD.tab = 'manual'; ADD.foto = null; ADD.teks = '';
+    ADD.drafts = [draftKosong()]; $('aNote').hidden = true; showStep(2); renderDrafts(); return;
+  }
+  ADD.tab = tab;
+  document.querySelectorAll('#aTabs button').forEach(function (b) { b.setAttribute('aria-pressed', b.dataset.tab === tab ? 'true' : 'false'); });
+  document.querySelectorAll('[data-panel]').forEach(function (p) { p.hidden = p.dataset.panel !== tab; });
+}
+function draftKosong() {
+  var k = DATA.kategori.filter(function (x) { return x.tipe === 'Pengeluaran'; })[0];
+  return { tipe: 'Pengeluaran', kategori: k ? k.nama : '', nominal: '', tanggal: DATA.hariIni, keterangan: '', merchant: '', metode: '' };
+}
+function renderEx() {
+  var el = $('aEx'); if (!el) return;
+  el.innerHTML = (t('ex') || []).map(function (x) { return '<button type="button">' + esc(x) + '</button>'; }).join('');
+}
+$('aEx').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var ta = $('aText'); ta.value = ta.value.trim() ? ta.value.trim() + '\n' + b.textContent : b.textContent; ta.focus();
+});
+function setBusy(btn, on, label) {
+  ADD.busy = on; btn.disabled = on;
+  btn.innerHTML = on ? '<span class="spin"></span>' + esc(t('reading')) : esc(label);
+}
+function errMsg(e) { return e && e.message ? e.message : String(e); }
+$('aParse').onclick = function () {
+  var teks = $('aText').value.trim();
+  if (!teks) { $('aErr1').textContent = t('needText'); $('aText').focus(); return; }
+  var btn = this; setBusy(btn, true); $('aErr1').textContent = '';
+  server('bacaTeksApp', [KEY, teks], function (res) {
+    setBusy(btn, false, t('parseBtn'));
+    if (!res || !res.transaksi || !res.transaksi.length) { $('aErr1').textContent = t('noTxFound'); return; }
+    if (res.hariIni) DATA.hariIni = res.hariIni;
+    ADD.teks = teks; ADD.foto = null; ADD.drafts = res.transaksi; $('aNote').hidden = true;
+    showStep(2); renderDrafts();
+  }, function (e) { setBusy(btn, false, t('parseBtn')); $('aErr1').textContent = errMsg(e); });
+};
+function siapkanFoto(file, cb) {
+  if (!file) return;
+  var url = URL.createObjectURL(file), img = new Image();
+  img.onload = function () {
+    var max = 2000, w = img.naturalWidth, h = img.naturalHeight, s = Math.min(1, max / Math.max(w, h));
+    var c = document.createElement('canvas'); c.width = Math.round(w * s); c.height = Math.round(h * s);
+    var g = c.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, c.width, c.height); g.drawImage(img, 0, 0, c.width, c.height);
+    var data = c.toDataURL('image/jpeg', 0.82); URL.revokeObjectURL(url);
+    cb(null, { base64: data.slice(data.indexOf(',') + 1), mime: 'image/jpeg', preview: data });
+  };
+  img.onerror = function () { URL.revokeObjectURL(url); cb(new Error(t('photoBad'))); };
+  img.src = url;
+}
+function onPilihFoto() {
+  var f = this.files && this.files[0]; if (!f) return;
+  $('aErr1').textContent = '';
+  siapkanFoto(f, function (err, foto) {
+    if (err) { $('aErr1').textContent = err.message; return; }
+    ADD.foto = foto; $('aImg').src = foto.preview; $('aImg2').src = foto.preview;
+    $('aImgInfo').textContent = t('photoInfo', Math.round(foto.base64.length * 0.75 / 1024));
+    $('aPrev').hidden = false; $('aScan').disabled = false; $('aScan').focus();
+  });
+}
+$('aCam').onchange = onPilihFoto; $('aGal').onchange = onPilihFoto;
+$('aScan').onclick = function () {
+  if (!ADD.foto) return;
+  var btn = this; setBusy(btn, true); $('aErr1').textContent = '';
+  ADD.foto.caption = $('aCap').value.trim();
+  server('bacaStrukApp', [KEY, { base64: ADD.foto.base64, mime: ADD.foto.mime, caption: ADD.foto.caption }], function (res) {
+    setBusy(btn, false, t('scanBtn'));
+    if (res.hariIni) DATA.hariIni = res.hariIni;
+    ADD.drafts = res.transaksi || [];
+    $('aNote').hidden = !res.catatan; $('aNote').textContent = res.catatan ? t('aiNote') + res.catatan : '';
+    showStep(2); renderDrafts();
+  }, function (e) { setBusy(btn, false, t('scanBtn')); $('aErr1').textContent = errMsg(e); });
+};
+function opsiKategori(tipe, sel) {
+  return DATA.kategori.filter(function (k) { return k.tipe === tipe; }).map(function (k) {
+    return '<option value="' + esc(k.nama) + '"' + (k.nama === sel ? ' selected' : '') + '>' + esc(kn(k.nama)) + '</option>'; }).join('');
+}
+function renderDrafts() {
+  if (!DATA) return;
+  var L = I18N[LANG];
+  $('aPrev2').hidden = !ADD.foto;
+  $('aDrafts').innerHTML = ADD.drafts.map(function (d, i) {
+    var met = '<option value="">' + esc(L.noMethod) + '</option>' + METODE.map(function (m) { return '<option value="' + m + '"' + (m === d.metode ? ' selected' : '') + '>' + esc(mn(m)) + '</option>'; }).join('');
+    return '<div class="draft" data-i="' + i + '">' +
+      '<div class="dhead"><div class="seg" role="group"><button type="button" class="out" data-tipe="Pengeluaran" aria-pressed="' + (d.tipe !== 'Pemasukan') + '">' + esc(L.expense) + '</button>' +
+      '<button type="button" class="in" data-tipe="Pemasukan" aria-pressed="' + (d.tipe === 'Pemasukan') + '">' + esc(L.income) + '</button></div>' +
+      (ADD.drafts.length > 1 ? '<button type="button" class="ib del" data-rm="1" title="' + esc(t('removeDraft')) + '" aria-label="' + esc(t('removeDraft')) + '">✕</button>' : '') + '</div>' +
+      '<div class="fgrid">' +
+      '<div class="fld"><label>' + esc(L.fAmount) + '</label><input data-k="nominal" type="number" inputmode="numeric" min="1" step="1" value="' + esc(d.nominal) + '"></div>' +
+      '<div class="fld"><label>' + esc(L.fDate) + '</label><input data-k="tanggal" type="date" max="' + esc(DATA.hariIni) + '" value="' + esc(d.tanggal) + '"></div>' +
+      '<div class="fld full"><label>' + esc(L.fCat) + '</label><select data-k="kategori">' + opsiKategori(d.tipe === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran', d.kategori) + '</select></div>' +
+      '<div class="fld full"><label>' + esc(L.fDesc) + '</label><input data-k="keterangan" type="text" maxlength="200" value="' + esc(d.keterangan) + '"></div>' +
+      '<div class="fld"><label>' + esc(L.fMerchant) + '</label><input data-k="merchant" type="text" maxlength="80" value="' + esc(d.merchant) + '"></div>' +
+      '<div class="fld"><label>' + esc(L.fMethod) + '</label><select data-k="metode">' + met + '</select></div>' +
+      '</div></div>';
+  }).join('') + (ADD.drafts.length < 20 ? '<button type="button" class="mbtn" id="aAddLine">' + esc(t('addLine')) + '</button>' : '');
+  $('aSave').textContent = t('saveN', ADD.drafts.length);
+  $('aSave').disabled = !ADD.drafts.length;
+  var al = $('aAddLine'); if (al) al.onclick = function () { ADD.drafts.push(draftKosong()); renderDrafts(); };
+  if (ADD.tab === 'manual' && ADD.drafts.length === 1 && !ADD.drafts[0].nominal) { var n = $('aDrafts').querySelector('[data-k="nominal"]'); if (n) n.focus(); }
+}
+$('aDrafts').addEventListener('input', function (e) {
+  var box = e.target.closest('.draft'), k = e.target.dataset.k; if (!box || !k) return;
+  ADD.drafts[+box.dataset.i][k] = e.target.value;
+});
+$('aDrafts').addEventListener('change', function (e) {
+  var box = e.target.closest('.draft'), k = e.target.dataset.k; if (!box || !k) return;
+  ADD.drafts[+box.dataset.i][k] = e.target.value;
+});
+$('aDrafts').addEventListener('click', function (e) {
+  var b = e.target.closest('button'); if (!b) return;
+  var box = b.closest('.draft'); if (!box) return;
+  var d = ADD.drafts[+box.dataset.i];
+  if (b.dataset.tipe && b.dataset.tipe !== d.tipe) {
+    d.tipe = b.dataset.tipe;
+    var first = DATA.kategori.filter(function (k) { return k.tipe === d.tipe; })[0]; d.kategori = first ? first.nama : '';
+    renderDrafts();
+  } else if (b.dataset.rm) { ADD.drafts.splice(+box.dataset.i, 1); renderDrafts(); }
+});
+$('aSave').onclick = function () {
+  var list = ADD.drafts.map(function (d) {
+    return { tipe: d.tipe === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran', kategori: d.kategori, nominal: Math.round(Number(d.nominal)), tanggal: d.tanggal,
+      keterangan: String(d.keterangan || '').trim(), merchant: String(d.merchant || '').trim(), metode: d.metode || '' };
+  });
+  for (var i = 0; i < list.length; i++) {
+    if (!(list[i].nominal > 0)) { $('aErr').textContent = (list.length > 1 ? '#' + (i + 1) + ': ' : '') + t('errAmount'); return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(list[i].tanggal) || list[i].tanggal > DATA.hariIni) { $('aErr').textContent = (list.length > 1 ? '#' + (i + 1) + ': ' : '') + t('errDate'); return; }
+  }
+  var foto = ADD.foto ? { base64: ADD.foto.base64, mime: ADD.foto.mime, caption: ADD.foto.caption || '' } : (ADD.teks ? { teks: ADD.teks } : null);
+  // Tampilkan langsung di dashboard (abu-abu "Menyimpan…") — server Google kadang butuh beberapa detik.
+  var stamp = 'tmp' + Date.now(), sumber = foto && foto.base64 ? 'Struk' : 'Aplikasi';
+  var sementara = list.map(function (x, i) { return Object.assign({ id: stamp + '-' + i, sumber: sumber, struk: '', pending: true }, x); });
+  var simpanan = { drafts: ADD.drafts.slice(), foto: ADD.foto, teks: ADD.teks, tab: ADD.tab };
+  sementara.forEach(function (x) { DATA.transaksi.push(x); });
+  urutkan(); pindahKeBulan(list[0].tanggal);
+  closeAdd(); render(); toast(t('savingBg'));
+  var buang = function () { DATA.transaksi = DATA.transaksi.filter(function (x) { return String(x.id).indexOf(stamp) !== 0; }); };
+  server('simpanTransaksiApp', [KEY, list, foto], function (res) {
+    buang();
+    var baru = res.transaksi || [];
+    baru.forEach(function (x) { DATA.transaksi.push(x); });
+    urutkan(); render(); simpanCache();
+    toast(t('toastAdd', baru.length) + (res.peringatan ? '\n' + res.peringatan : ''), res.peringatan ? 7000 : 2600);
+  }, function (e) {
+    buang(); render();
+    if ($('addModal').hidden) {
+      ADD.drafts = simpanan.drafts; ADD.foto = simpanan.foto; ADD.teks = simpanan.teks; ADD.tab = simpanan.tab;
+      $('addModal').hidden = false; document.body.style.overflow = 'hidden'; showStep(2); renderDrafts();
+      $('aErr').textContent = t('errSave') + errMsg(e);
+    } else toast(t('errSave') + errMsg(e), 6000);
+  });
+};
+function urutkan() { DATA.transaksi.sort(function (a, b) { return a.tanggal < b.tanggal ? 1 : a.tanggal > b.tanggal ? -1 : 0; }); }
+function pindahKeBulan(tanggal) {
+  var m = ym(tanggal), sel = $('month');
+  if (!Array.prototype.some.call(sel.options, function (o) { return o.value === m; })) {
+    var opt = document.createElement('option'); opt.value = m; opt.textContent = monthName(m); sel.appendChild(opt);
+    var opts = Array.prototype.slice.call(sel.options).sort(function (a, b) { return a.value < b.value ? 1 : -1; });
+    opts.forEach(function (o) { sel.appendChild(o); });
+  }
+  CUR = m; sel.value = m;
+}
+$('aBack').onclick = function () { if (ADD.busy) return; showStep(1); setTab(ADD.tab === 'foto' ? 'foto' : 'teks'); };
+$('aClose').onclick = closeAdd;
+$('addModal').addEventListener('click', function (e) { if (e.target.id === 'addModal') closeAdd(); });
+document.querySelectorAll('#aTabs button').forEach(function (b) { b.onclick = function () { setTab(b.dataset.tab); }; });
+$('fab').onclick = function () { openAdd(); };
+$('aText').addEventListener('keydown', function (e) { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) $('aParse').click(); });
+
+/* ---------- aplikasi: keluar, instal ---------- */
+var outT;
+$('logoutBtn').onclick = function () {
+  var b = this;
+  if (!b.dataset.ask) { b.dataset.ask = '1'; toast(t('logoutAsk')); outT = setTimeout(function () { delete b.dataset.ask; }, 3000); return; }
+  clearTimeout(outT); delete b.dataset.ask;
+  lsSet('finza-key', null); lsSet('finza-data', null); KEY = ''; DATA = null; showLogin('');
+};
+var instEvt = null;
+window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); instEvt = e; if (IS_APP) $('installBtn').hidden = false; });
+$('installBtn').onclick = function () { if (!instEvt) return; instEvt.prompt(); instEvt.userChoice.then(function () { instEvt = null; $('installBtn').hidden = true; }); };
+window.addEventListener('appinstalled', function () { $('installBtn').hidden = true; });
+function cekPetunjukIOS() {
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var standalone = window.navigator.standalone || matchMedia('(display-mode: standalone)').matches;
+  if (!IS_APP || !ios || standalone || lsGet('finza-ios-hint')) return;
+  $('installText').innerHTML = t('iosHint'); $('installBar').hidden = false;
+}
+$('installClose').onclick = function () { $('installBar').hidden = true; lsSet('finza-ios-hint', '1'); };
+
+/* ---------- events ---------- */
+document.getElementById('month').onchange = function () { CUR = this.value; LIMIT = 50; render(); };
+document.getElementById('prev').onclick = function () { var s = document.getElementById('month'); if (s.selectedIndex < s.options.length - 1) { s.selectedIndex++; s.onchange(); } };
+document.getElementById('next').onclick = function () { var s = document.getElementById('month'); if (s.selectedIndex > 0) { s.selectedIndex--; s.onchange(); } };
+document.getElementById('refresh').onclick = load;
+document.getElementById('q').oninput = function () { if (DATA) renderTable(DATA.transaksi.filter(function (t) { return ym(t.tanggal) === CUR; })); };
+document.querySelectorAll('.chip').forEach(function (c) {
+  c.onclick = function () {
+    FILTER = c.getAttribute('data-f');
+    document.querySelectorAll('.chip').forEach(function (x) { x.setAttribute('aria-pressed', x === c ? 'true' : 'false'); });
+    renderTable(DATA.transaksi.filter(function (t) { return ym(t.tanggal) === CUR; }));
+  };
+});
+var rT; window.addEventListener('resize', function () { clearTimeout(rT); rT = setTimeout(function () { if (DATA) render(); }, 150); });
+/* ---------- tema & bahasa ---------- */
+function applyTheme() {
+  document.documentElement.setAttribute('data-theme', THEME);
+  document.getElementById('themeBtn').textContent = THEME === 'dark' ? '☀️' : '🌙';
+}
+function applyStatic() {
+  document.documentElement.lang = LANG;
+  document.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function (el) { el.placeholder = t(el.getAttribute('data-i18n-ph')); });
+  document.getElementById('langBtn').textContent = LANG === 'id' ? 'EN' : 'ID';
+  document.getElementById('themeBtn').title = t('themeTitle');
+  document.getElementById('langBtn').title = t('langTitle');
+  document.getElementById('logoutBtn').title = t('logout'); document.getElementById('logoutBtn').setAttribute('aria-label', t('logout'));
+  document.getElementById('installBtn').title = t('install'); document.getElementById('installBtn').setAttribute('aria-label', t('install'));
+  if (typeof renderEx === 'function') renderEx();
+  if (typeof renderDrafts === 'function' && !document.getElementById('aStep2').hidden) renderDrafts();
+  document.getElementById('hello').textContent = DATA && DATA.nama ? t('hello', DATA.nama.split(' ')[0]) : t('tagline');
+  if (DATA) { var sel = document.getElementById('month'); Array.prototype.forEach.call(sel.options, function (o) { o.textContent = monthName(o.value); }); }
+}
+function simpanLokal() { try { localStorage.setItem('finza-pref', JSON.stringify({ tema: THEME, bahasa: LANG })); } catch (e) {} }
+function simpanServer() {
+  simpanLokal();
+  try { if (KEY && (IS_GAS || IS_APP)) server('simpanPreferensi', [KEY, { tema: THEME, bahasa: LANG }], function () {}, function () {}); } catch (e) {}
+}
+document.getElementById('themeBtn').onclick = function () { THEME = THEME === 'dark' ? 'light' : 'dark'; applyTheme(); if (DATA) render(); simpanServer(); };
+document.getElementById('langBtn').onclick = function () { LANG = LANG === 'id' ? 'en' : 'id'; applyStatic(); if (DATA) render(); simpanServer(); };
+try { var _p = JSON.parse(localStorage.getItem('finza-pref') || '{}'); if (_p.tema === 'dark' || _p.tema === 'light') THEME = _p.tema; if (_p.bahasa === 'en' || _p.bahasa === 'id') LANG = _p.bahasa; } catch (e) {}
+applyTheme(); applyStatic();
+if (IS_APP && KEY) {
+  try { var _c = JSON.parse(lsGet('finza-data') || 'null'); if (_c && _c.k === KEY && _c.d) onData(_c.d); } catch (e) {}
+}
+load();
+if (IS_APP) setTimeout(cekPetunjukIOS, 2500);
+
+</script>
+<script>
+if ('serviceWorker' in navigator && location.protocol === 'https:') {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () {}); });
+}
+</script>
+</body>
+</html>
