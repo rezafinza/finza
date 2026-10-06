@@ -442,7 +442,7 @@ var I18N = {
     capLbl: 'Catatan tambahan (opsional)', capPh: 'mis. bayar pakai QRIS', scanBtn: 'Baca struk', receiptAttached: 'Foto struk akan ikut disimpan.',
     photoBad: 'Foto tidak bisa dibuka. Coba foto lain (JPG/PNG).', photoInfo: 'Foto siap · {0} KB', back: '← Kembali', saveN: 'Simpan ({0})',
     needText: 'Tulis transaksinya dulu, mis. "kopi 18rb".', noTxFound: 'Tidak ada nominal yang terbaca. Contoh: "kopi 18rb".', removeDraft: 'Hapus baris ini',
-    toastAdd: '✅ {0} transaksi dicatat', savingBg: 'Menyimpan…', aiNote: 'Catatan AI: ', addLine: '+ Tambah baris', netErr: 'Tidak ada koneksi internet. Coba lagi.',
+    toastAdd: '✅ {0} transaksi dicatat', savingBg: 'Menyimpan…', aiNote: 'Catatan AI: ', addLine: '+ Tambah baris', netErr: 'Koneksi ke server gagal (internet atau server Google sedang sibuk). Coba lagi.',
     loginTitle: 'Masuk ke FINZA', loginLead: 'Aplikasi ini memakai link pribadi dari bot Telegram FINZA.',
     loginS1: 'Buka bot FINZA di Telegram, ketik /app', loginS2: 'Ketuk link yang dikirim bot — selesai. Atau salin link itu dan tempel di bawah.',
     loginPh: 'Tempel link atau kunci di sini', loginBtn: 'Masuk', keyBad: 'Link/kunci tidak valid atau akun nonaktif. Minta link baru dengan /app di bot.',
@@ -485,7 +485,7 @@ var I18N = {
     capLbl: 'Extra note (optional)', capPh: 'e.g. paid with QRIS', scanBtn: 'Read receipt', receiptAttached: 'The receipt photo will be saved too.',
     photoBad: 'This photo cannot be opened. Try another one (JPG/PNG).', photoInfo: 'Photo ready · {0} KB', back: '← Back', saveN: 'Save ({0})',
     needText: 'Type the transaction first, e.g. "coffee 18k".', noTxFound: 'No amount found. Example: "coffee 18k".', removeDraft: 'Remove this row',
-    toastAdd: '✅ {0} transaction(s) recorded', savingBg: 'Saving…', aiNote: 'AI note: ', addLine: '+ Add row', netErr: 'No internet connection. Please try again.',
+    toastAdd: '✅ {0} transaction(s) recorded', savingBg: 'Saving…', aiNote: 'AI note: ', addLine: '+ Add row', netErr: 'Could not reach the server (internet or Google busy). Please try again.',
     loginTitle: 'Sign in to FINZA', loginLead: 'This app uses your private link from the FINZA Telegram bot.',
     loginS1: 'Open the FINZA bot in Telegram, type /app', loginS2: 'Tap the link the bot sends — done. Or copy that link and paste it below.',
     loginPh: 'Paste your link or key here', loginBtn: 'Sign in', keyBad: 'Invalid link/key or inactive account. Get a new link with /app in the bot.',
@@ -1014,10 +1014,24 @@ function server(fn, args, ok, fail) {
   if (IS_GAS) { var r = google.script.run.withSuccessHandler(ok).withFailureHandler(fail); r[fn].apply(r, args); return; }
   if (!IS_APP) { fail(new Error('offline')); return; }
   // text/plain = "simple request" (tanpa preflight CORS) — Apps Script membalas JSON lewat redirect googleusercontent.
-  fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ api: fn, args: args }) })
-    .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
-    .then(function (j) { if (j && j.ok) ok(j.data); else fail(new Error((j && j.error) || 'Error')); })
-    .catch(function (e) { fail(e && /fetch|network|load failed/i.test(e.message || '') ? new Error(t('netErr')) : e); });
+  // Jalur Google ini kadang putus (404/gagal) walau server sudah selesai, jadi diulang otomatis hingga 3x.
+  // Penyimpanan aman diulang: simpanTransaksiApp memakai reqId agar tidak tersimpan dua kali.
+  var body = JSON.stringify({ api: fn, args: args }), coba = 0;
+  function kirim() {
+    coba++;
+    fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: body })
+      .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { throw new Error('bad-json'); }
+        if (j && j.ok) ok(j.data);
+        else if (coba > 1 && fn === 'hapusTransaksi' && /tidak ditemukan|not found/i.test(j && j.error || '')) ok(true);
+        else fail(new Error((j && j.error) || 'Error'));
+      }, function (e) { throw e; })
+      .catch(function (e) {
+        if (coba < 3) { setTimeout(kirim, 800 * coba); return; }
+        fail(new Error(/fetch|network|load failed|HTTP|bad-json/i.test(e && e.message || '') ? t('netErr') : (e && e.message) || String(e)));
+      });
+  }
+  kirim();
 }
 var toastT;
 function toast(msg, ms) {
@@ -1275,7 +1289,7 @@ $('aSave').onclick = function () {
   urutkan(); pindahKeBulan(list[0].tanggal);
   closeAdd(); render(); toast(t('savingBg'));
   var buang = function () { DATA.transaksi = DATA.transaksi.filter(function (x) { return String(x.id).indexOf(stamp) !== 0; }); };
-  server('simpanTransaksiApp', [KEY, list, foto], function (res) {
+  server('simpanTransaksiApp', [KEY, list, foto, stamp + Math.random().toString(36).slice(2, 8)], function (res) {
     buang();
     var baru = res.transaksi || [];
     baru.forEach(function (x) { DATA.transaksi.push(x); });
