@@ -442,7 +442,7 @@ var I18N = {
     capLbl: 'Catatan tambahan (opsional)', capPh: 'mis. bayar pakai QRIS', scanBtn: 'Baca struk', receiptAttached: 'Foto struk akan ikut disimpan.',
     photoBad: 'Foto tidak bisa dibuka. Coba foto lain (JPG/PNG).', photoInfo: 'Foto siap · {0} KB', back: '← Kembali', saveN: 'Simpan ({0})',
     needText: 'Tulis transaksinya dulu, mis. "kopi 18rb".', noTxFound: 'Tidak ada nominal yang terbaca. Contoh: "kopi 18rb".', removeDraft: 'Hapus baris ini',
-    toastAdd: '✅ {0} transaksi dicatat', savingBg: 'Menyimpan…', aiNote: 'Catatan AI: ', addLine: '+ Tambah baris', netErr: 'Koneksi ke server gagal (internet atau server Google sedang sibuk). Coba lagi.',
+    sharedWith: '👥 dompet bersama {0}', toastAdd: '✅ {0} transaksi dicatat', savingBg: 'Menyimpan…', aiNote: 'Catatan AI: ', addLine: '+ Tambah baris', netErr: 'Koneksi ke server gagal (internet atau server Google sedang sibuk). Coba lagi.',
     loginTitle: 'Masuk ke FINZA', loginLead: 'Aplikasi ini memakai link pribadi dari bot Telegram FINZA.',
     loginS1: 'Buka bot FINZA di Telegram, ketik /app', loginS2: 'Ketuk link yang dikirim bot — selesai. Atau salin link itu dan tempel di bawah.',
     loginPh: 'Tempel link atau kunci di sini', loginBtn: 'Masuk', keyBad: 'Link/kunci tidak valid atau akun nonaktif. Minta link baru dengan /app di bot.',
@@ -485,7 +485,7 @@ var I18N = {
     capLbl: 'Extra note (optional)', capPh: 'e.g. paid with QRIS', scanBtn: 'Read receipt', receiptAttached: 'The receipt photo will be saved too.',
     photoBad: 'This photo cannot be opened. Try another one (JPG/PNG).', photoInfo: 'Photo ready · {0} KB', back: '← Back', saveN: 'Save ({0})',
     needText: 'Type the transaction first, e.g. "coffee 18k".', noTxFound: 'No amount found. Example: "coffee 18k".', removeDraft: 'Remove this row',
-    toastAdd: '✅ {0} transaction(s) recorded', savingBg: 'Saving…', aiNote: 'AI note: ', addLine: '+ Add row', netErr: 'Could not reach the server (internet or Google busy). Please try again.',
+    sharedWith: '👥 shared with {0}', toastAdd: '✅ {0} transaction(s) recorded', savingBg: 'Saving…', aiNote: 'AI note: ', addLine: '+ Add row', netErr: 'Could not reach the server (internet or Google busy). Please try again.',
     loginTitle: 'Sign in to FINZA', loginLead: 'This app uses your private link from the FINZA Telegram bot.',
     loginS1: 'Open the FINZA bot in Telegram, type /app', loginS2: 'Tap the link the bot sends — done. Or copy that link and paste it below.',
     loginPh: 'Paste your link or key here', loginBtn: 'Sign in', keyBad: 'Invalid link/key or inactive account. Get a new link with /app in the bot.',
@@ -983,7 +983,7 @@ function renderTable(rows) {
   var list = rows.filter(function (r) {
     if (FILTER !== 'all' && r.tipe !== FILTER) return false;
     if (!q) return true;
-    return (r.keterangan + ' ' + r.kategori + ' ' + kn(r.kategori) + ' ' + r.merchant + ' ' + r.metode + ' ' + mn(r.metode)).toLowerCase().indexOf(q) >= 0;
+    return (r.keterangan + ' ' + r.kategori + ' ' + kn(r.kategori) + ' ' + r.merchant + ' ' + r.metode + ' ' + mn(r.metode) + ' ' + (r.oleh || '')).toLowerCase().indexOf(q) >= 0;
   }).sort(function (a, b) { return a.tanggal < b.tanggal ? 1 : a.tanggal > b.tanggal ? -1 : 0; });
   var sum = list.reduce(function (a, r) { return a + (r.tipe === 'Pemasukan' ? r.nominal : -r.nominal); }, 0);
   document.getElementById('tblSub').textContent = t('tblSub', list.length, rpSigned(sum));
@@ -994,7 +994,7 @@ function renderTable(rows) {
     list.slice(0, LIMIT).map(function (t) {
       var inc = t.tipe === 'Pemasukan';
       return '<tr data-id="' + esc(t.id) + '"' + (t.pending ? ' class="busy"' : '') + '><td style="white-space:nowrap">' + tgl(t.tanggal) + '</td>' +
-        '<td><div class="tx"><div class="av ' + (inc ? 'in' : 'out') + '">' + esc((kn(t.kategori) || '?').charAt(0)) + '</div><div>' + esc(t.keterangan) + (t.merchant ? '<div class="m">' + esc(t.merchant) + '</div>' : '') +
+        '<td><div class="tx"><div class="av ' + (inc ? 'in' : 'out') + '">' + esc((kn(t.kategori) || '?').charAt(0)) + '</div><div>' + esc(t.keterangan) + (t.merchant || t.oleh ? '<div class="m">' + esc(t.merchant) + (t.merchant && t.oleh ? ' · ' : '') + (t.oleh ? '👤 ' + esc(t.oleh) : '') + '</div>' : '') +
         '<div class="m show-sm"><span class="dot" style="background:' + css(inc ? '--s-in' : '--s-out') + '"></span>' + esc(kn(t.kategori)) + (t.metode ? ' · ' + esc(mn(t.metode)) : '') + '</div>' +
         (t.struk ? '<div class="m"><a href="' + esc(t.struk) + '" target="_blank" rel="noopener">' + LBL.seeReceipt + '</a></div>' : '') + '</div></div></td>' +
         '<td class="hide-sm"><span class="dot" style="background:' + css(inc ? '--s-in' : '--s-out') + '"></span>' + esc(kn(t.kategori)) + '</td>' +
@@ -1373,7 +1373,8 @@ function applyStatic() {
   document.getElementById('installBtn').title = t('install'); document.getElementById('installBtn').setAttribute('aria-label', t('install'));
   if (typeof renderEx === 'function') renderEx();
   if (typeof renderDrafts === 'function' && !document.getElementById('aStep2').hidden) renderDrafts();
-  document.getElementById('hello').textContent = DATA && DATA.nama ? t('hello', DATA.nama.split(' ')[0]) : t('tagline');
+  document.getElementById('hello').textContent = DATA && DATA.nama ? t('hello', DATA.nama.split(' ')[0]) +
+    (DATA.dompet && DATA.dompet.length ? ' · ' + t('sharedWith', DATA.dompet.join(', ')) : '') : t('tagline');
   if (DATA) { var sel = document.getElementById('month'); Array.prototype.forEach.call(sel.options, function (o) { o.textContent = monthName(o.value); }); }
 }
 function simpanLokal() { try { localStorage.setItem('finza-pref', JSON.stringify({ tema: THEME, bahasa: LANG })); } catch (e) {} }
