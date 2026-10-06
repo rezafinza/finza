@@ -1,5 +1,5 @@
-// FINZA service worker — versi 68f2feb0d5
-const V = 'finza-68f2feb0d5';
+// FINZA service worker — versi 484c41f491
+const V = 'finza-484c41f491';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png', 'apple-touch-icon.png', 'favicon-32.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => {

@@ -1054,14 +1054,13 @@ document.getElementById('tbl').addEventListener('click', function (e) {
   }
   if (b.dataset.act === 'no') { renderTable(rowsNow()); return; }
   if (b.dataset.act === 'yes') {
-    tr.classList.add('busy'); cell.querySelectorAll('button').forEach(function (x) { x.disabled = true; });
-    cell.querySelector('.confirm').firstChild.textContent = t('deleting') + ' ';
-    server('hapusTransaksi', [KEY, id], function () {
-      DATA.transaksi = DATA.transaksi.filter(function (x) { return String(x.id) !== String(id); });
-      render(); simpanCache(); toast(t('toastDel'));
-    }, function (err) {
-      tr.classList.remove('busy'); renderTable(rowsNow());
-      toast(err && err.message === 'offline' ? t('demoOnly') : t('errDel') + (err && err.message ? err.message : err));
+    // Langsung hilang dari layar; kalau server gagal, baris dikembalikan.
+    var lama = trxById(id);
+    DATA.transaksi = DATA.transaksi.filter(function (x) { return String(x.id) !== String(id); });
+    render(); toast(t('toastDel'));
+    server('hapusTransaksi', [KEY, id], function () { simpanCache(); }, function (err) {
+      if (lama) { DATA.transaksi.push(lama); urutkan(); render(); }
+      toast(err && err.message === 'offline' ? t('demoOnly') : t('errDel') + (err && err.message ? err.message : err), 6000);
     });
   }
 });
@@ -1126,14 +1125,17 @@ document.getElementById('editForm').addEventListener('submit', function (e) {
   var err = document.getElementById('mErr');
   if (!(data.nominal > 0)) { err.textContent = t('errAmount'); return; }
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data.tanggal) || data.tanggal > DATA.hariIni) { err.textContent = t('errDate'); return; }
-  var btn = document.getElementById('mSave'); btn.disabled = true; btn.textContent = t('saving'); err.textContent = '';
-  var id = EDIT_ID;
+  var id = EDIT_ID, r0 = trxById(id), lama = r0 ? Object.assign({}, r0) : null;
+  // Perubahan langsung tampil; kalau server gagal, dikembalikan seperti semula.
+  if (r0) Object.assign(r0, data);
+  closeEdit(); urutkan(); render(); toast(t('saving'));
   server('ubahTransaksi', [KEY, id, data], function (res) {
     var r = trxById(id); if (r) Object.assign(r, res);
-    closeEdit(); render(); simpanCache(); toast(t('toastSave'));
+    render(); simpanCache(); toast(t('toastSave'));
   }, function (e2) {
-    btn.disabled = false; btn.textContent = t('save');
-    err.textContent = e2 && e2.message === 'offline' ? t('demoOnly') : t('errSave') + (e2 && e2.message ? e2.message : e2);
+    var r = trxById(id); if (r && lama) Object.assign(r, lama);
+    urutkan(); render();
+    toast(e2 && e2.message === 'offline' ? t('demoOnly') : t('errSave') + (e2 && e2.message ? e2.message : e2), 6000);
   });
 });
 
